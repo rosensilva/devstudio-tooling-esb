@@ -28,18 +28,30 @@ import org.apache.synapse.mediators.spring.SpringMediator;
 import org.apache.synapse.mediators.spring.SpringMediatorFactory;
 
 public class SpringMediatorExtFactory extends SpringMediatorFactory {
+    
+    private static SpringMediatorExtFactory instance;
+    
+    private SpringMediatorExtFactory() {
+    }
+    
+    public static synchronized SpringMediatorExtFactory getInstance() {
+        if (instance == null) {
+            instance = new SpringMediatorExtFactory();
+        }
+        return instance;
+    }
 
     protected Mediator createSpecificMediator(OMElement omElement) {
 
-	Mediator mediator = new SpringMediator();
-	OMAttribute bean = omElement.getAttribute(new QName(XMLConfigConstants.NULL_NAMESPACE, "bean"));
-	OMAttribute key = omElement.getAttribute(new QName(XMLConfigConstants.NULL_NAMESPACE, "key"));
+        Mediator mediator = new SpringMediator();
+        OMAttribute bean = omElement.getAttribute(new QName(XMLConfigConstants.NULL_NAMESPACE, "bean"));
+        OMAttribute key = omElement.getAttribute(new QName(XMLConfigConstants.NULL_NAMESPACE, "key"));
 
-	processAuditStatus(mediator, omElement);
-	((SpringMediator) mediator).setBeanName(bean.getAttributeValue());
-	((SpringMediator) mediator).setConfigKey(key.getAttributeValue());
+        processAuditStatus(mediator, omElement);
+        ((SpringMediator) mediator).setBeanName(bean.getAttributeValue());
+        ((SpringMediator) mediator).setConfigKey(key.getAttributeValue());
 
-	return mediator;
+        return mediator;
     }
 
 }

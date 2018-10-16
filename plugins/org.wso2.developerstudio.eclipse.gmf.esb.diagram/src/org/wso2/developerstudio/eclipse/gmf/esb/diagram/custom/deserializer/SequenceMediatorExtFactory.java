@@ -29,39 +29,51 @@ import org.apache.synapse.mediators.Value;
 import org.apache.synapse.mediators.base.SequenceMediator;
 
 public class SequenceMediatorExtFactory extends SequenceMediatorFactory {
+    
+    private static SequenceMediatorExtFactory instance;
+    
+    private SequenceMediatorExtFactory() {
+    }
+    
+    public static synchronized SequenceMediatorExtFactory getInstance() {
+        if (instance == null) {
+            instance = new SequenceMediatorExtFactory();
+        }
+        return instance;
+    }
 
     protected Mediator createSpecificMediator(OMElement omElement) {
 
-	Mediator mediator = new SequenceMediator();
+        Mediator mediator = new SequenceMediator();
 
-	OMAttribute e = omElement.getAttribute(ATT_ONERROR);
-	OMAttribute n = omElement.getAttribute(ATT_NAME);
+        OMAttribute e = omElement.getAttribute(ATT_ONERROR);
+        OMAttribute n = omElement.getAttribute(ATT_NAME);
 
-	if (e != null) {
-	    ((SequenceMediator) mediator).setErrorHandler(e.getAttributeValue());
-	}
-	processAuditStatus(mediator, omElement);
+        if (e != null) {
+            ((SequenceMediator) mediator).setErrorHandler(e.getAttributeValue());
+        }
+        processAuditStatus(mediator, omElement);
 
-	OMElement descElem = omElement.getFirstChildWithName(DESCRIPTION_Q);
-	if (descElem != null) {
-	    ((SequenceMediator) mediator).setDescription(descElem.getText());
-	}
-	addChildren(omElement, ((SequenceMediator) mediator), null);
-	((SequenceMediator) mediator).setSequenceType(SequenceType.ANON);
+        OMElement descElem = omElement.getFirstChildWithName(DESCRIPTION_Q);
+        if (descElem != null) {
+            ((SequenceMediator) mediator).setDescription(descElem.getText());
+        }
+        addChildren(omElement, ((SequenceMediator) mediator), null);
+        ((SequenceMediator) mediator).setSequenceType(SequenceType.ANON);
 
-	if (n != null) {
-	    ((SequenceMediator) mediator).setName(n.getAttributeValue());
+        if (n != null) {
+            ((SequenceMediator) mediator).setName(n.getAttributeValue());
 
-	} else {
-	    n = omElement.getAttribute(ATT_KEY);
-	    if (n != null) {
-		ValueFactory keyFac = new ValueFactory();
-		Value generatedKey = keyFac.createValue(XMLConfigConstants.KEY, omElement);
-		((SequenceMediator) mediator).setKey(generatedKey);
+        } else {
+            n = omElement.getAttribute(ATT_KEY);
+            if (n != null) {
+                ValueFactory keyFac = new ValueFactory();
+                Value generatedKey = keyFac.createValue(XMLConfigConstants.KEY, omElement);
+                ((SequenceMediator) mediator).setKey(generatedKey);
 
-	    }
-	}
+            }
+        }
 
-	return mediator;
+        return mediator;
     }
 }

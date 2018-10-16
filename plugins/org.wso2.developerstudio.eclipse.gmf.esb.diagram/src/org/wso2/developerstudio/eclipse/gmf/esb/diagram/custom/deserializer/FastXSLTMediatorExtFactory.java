@@ -28,23 +28,35 @@ import org.wso2.carbon.mediator.fastXSLT.FastXSLTMediator;
 import org.wso2.carbon.mediator.fastXSLT.config.xml.FastXSLTMediatorFactory;
 
 public class FastXSLTMediatorExtFactory extends FastXSLTMediatorFactory {
+    
+    private static FastXSLTMediatorExtFactory instance;
+    
+    private FastXSLTMediatorExtFactory() {
+    }
+    
+    public static synchronized FastXSLTMediatorExtFactory getInstance() {
+        if (instance == null) {
+            instance = new FastXSLTMediatorExtFactory();
+        }
+        return instance;
+    }
 
     protected Mediator createSpecificMediator(OMElement omElement) {
 
-	Mediator mediator = new FastXSLTMediator();
+        Mediator mediator = new FastXSLTMediator();
 
-	OMAttribute attXslt = omElement.getAttribute(ATT_KEY);
+        OMAttribute attXslt = omElement.getAttribute(ATT_KEY);
 
-	if (attXslt != null) {
-	    ValueFactory keyFac = new ValueFactory();
-	    Value generatedKey = keyFac.createValue(XMLConfigConstants.KEY, omElement);
+        if (attXslt != null) {
+            ValueFactory keyFac = new ValueFactory();
+            Value generatedKey = keyFac.createValue(XMLConfigConstants.KEY, omElement);
 
-	    ((FastXSLTMediator) mediator).setXsltKey(generatedKey);
-	}
+            ((FastXSLTMediator) mediator).setXsltKey(generatedKey);
+        }
 
-	processAuditStatus(mediator, omElement);
+        processAuditStatus(mediator, omElement);
 
-	return mediator;
+        return mediator;
     }
 
 }

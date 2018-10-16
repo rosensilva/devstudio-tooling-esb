@@ -33,32 +33,44 @@ public class OAuthServiceMediatorExtFactory extends OAuthMediatorFactory {
     private static final QName ATTR_NAME_SERVICE_EPR = new QName("remoteServiceUrl");
     private static final QName ATTR_NAME_USERNAME = new QName("username");
     private static final QName ATTR_NAME_PASSWORD = new QName("password");
+    
+    private static OAuthServiceMediatorExtFactory instance;
+    
+    private OAuthServiceMediatorExtFactory() {
+    }
+    
+    public static synchronized OAuthServiceMediatorExtFactory getInstance() {
+        if (instance == null) {
+            instance = new OAuthServiceMediatorExtFactory();
+        }
+        return instance;
+    }
 
     protected Mediator createSpecificMediator(OMElement omElement) {
 
-	OAuthMediator mediator = null;
-	OMAttribute remoteServiceUrl = null;
-	OMAttribute username = null;
-	OMAttribute password = null;
+        OAuthMediator mediator = null;
+        OMAttribute remoteServiceUrl = null;
+        OMAttribute username = null;
+        OMAttribute password = null;
 
-	mediator = new OAuthMediator();
+        mediator = new OAuthMediator();
 
-	remoteServiceUrl = omElement.getAttribute(ATTR_NAME_SERVICE_EPR);
-	if (remoteServiceUrl != null && remoteServiceUrl.getAttributeValue() != null) {
-	    mediator.setRemoteServiceUrl(remoteServiceUrl.getAttributeValue());
-	}
+        remoteServiceUrl = omElement.getAttribute(ATTR_NAME_SERVICE_EPR);
+        if (remoteServiceUrl != null && remoteServiceUrl.getAttributeValue() != null) {
+            mediator.setRemoteServiceUrl(remoteServiceUrl.getAttributeValue());
+        }
 
-	username = omElement.getAttribute(ATTR_NAME_USERNAME);
-	if (username != null && username.getAttributeValue() != null) {
-	    mediator.setUsername(username.getAttributeValue());
-	}
+        username = omElement.getAttribute(ATTR_NAME_USERNAME);
+        if (username != null && username.getAttributeValue() != null) {
+            mediator.setUsername(username.getAttributeValue());
+        }
 
-	password = omElement.getAttribute(ATTR_NAME_PASSWORD);
-	if (password != null && password.getAttributeValue() != null) {
-	    mediator.setPassword(password.getAttributeValue());
-	}
+        password = omElement.getAttribute(ATTR_NAME_PASSWORD);
+        if (password != null && password.getAttributeValue() != null) {
+            mediator.setPassword(password.getAttributeValue());
+        }
 
-	return mediator;
+        return mediator;
 
     }
 
