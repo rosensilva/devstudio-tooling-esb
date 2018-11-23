@@ -68,7 +68,7 @@ public class XSLTMediatorTransformer extends AbstractEsbNodeTransformer {
         }
     }
 
-    private org.apache.synapse.mediators.transform.XSLTMediator createXSLTMediator(EsbNode subject)
+    public static org.apache.synapse.mediators.transform.XSLTMediator createXSLTMediator(EsbNode subject)
             throws JaxenException {
         Assert.isTrue(subject instanceof XSLTMediator, "Invalid subject.");
         XSLTMediator visualXSLT = (XSLTMediator) subject;

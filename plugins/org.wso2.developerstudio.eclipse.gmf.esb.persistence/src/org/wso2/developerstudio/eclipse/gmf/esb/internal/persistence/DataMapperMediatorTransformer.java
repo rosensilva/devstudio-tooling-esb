@@ -34,7 +34,7 @@ public class DataMapperMediatorTransformer extends AbstractEsbNodeTransformer {
 
     }
 
-    private org.wso2.carbon.mediator.datamapper.DataMapperMediator createDataMapperMediator(EsbNode subject)
+    public static org.wso2.carbon.mediator.datamapper.DataMapperMediator createDataMapperMediator(EsbNode subject)
             throws TransformerException {
         Assert.isTrue(subject instanceof DataMapperMediator, "Invalid subject.");
         DataMapperMediator visualDataMapperMediator = (DataMapperMediator) subject;
@@ -57,7 +57,7 @@ public class DataMapperMediatorTransformer extends AbstractEsbNodeTransformer {
         return carbonDataMapperMediator;
     }
 
-    private void setOutputSchemaKey(DataMapperMediator visualDataMapperMediator,
+    private static void setOutputSchemaKey(DataMapperMediator visualDataMapperMediator,
             org.wso2.carbon.mediator.datamapper.DataMapperMediator carbonDataMapperMediator)
             throws TransformerException {
         Value outputSchemaKey = null;
@@ -74,7 +74,7 @@ public class DataMapperMediatorTransformer extends AbstractEsbNodeTransformer {
         }
     }
 
-    private boolean setInputSchemaKey(DataMapperMediator visualDataMapperMediator,
+    private static boolean setInputSchemaKey(DataMapperMediator visualDataMapperMediator,
             org.wso2.carbon.mediator.datamapper.DataMapperMediator carbonDataMapperMediator)
             throws TransformerException {
         Value inputSchemaKey = null;
@@ -92,7 +92,7 @@ public class DataMapperMediatorTransformer extends AbstractEsbNodeTransformer {
         return true;
     }
 
-    private boolean setConfigKey(DataMapperMediator visualDataMapperMediator,
+    private static boolean setConfigKey(DataMapperMediator visualDataMapperMediator,
             org.wso2.carbon.mediator.datamapper.DataMapperMediator carbonDataMapperMediator)
             throws TransformerException {
         Value configKey = null;
@@ -110,7 +110,7 @@ public class DataMapperMediatorTransformer extends AbstractEsbNodeTransformer {
         return true;
     }
 
-    private void setInputDataType(DataMapperMediator visualDataMapperMediator,
+    private static void setInputDataType(DataMapperMediator visualDataMapperMediator,
             org.wso2.carbon.mediator.datamapper.DataMapperMediator carbonDataMapperMediator) {
         String inutDataType = null;
         String value = visualDataMapperMediator.getInputType().toString();
@@ -122,7 +122,7 @@ public class DataMapperMediatorTransformer extends AbstractEsbNodeTransformer {
         }
     }
 
-    private void setOutputDataType(DataMapperMediator visualDataMapperMediator,
+    private static void setOutputDataType(DataMapperMediator visualDataMapperMediator,
             org.wso2.carbon.mediator.datamapper.DataMapperMediator carbonDataMapperMediator) {
         String outputDataType = null;
         String value = visualDataMapperMediator.getOutputType().toString();

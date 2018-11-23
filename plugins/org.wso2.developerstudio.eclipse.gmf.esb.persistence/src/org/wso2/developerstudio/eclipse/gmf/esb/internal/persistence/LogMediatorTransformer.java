@@ -64,7 +64,7 @@ public class LogMediatorTransformer extends AbstractEsbNodeTransformer {
      * @return org.apache.synapse.mediators.builtin.LogMediator
      * @throws JaxenException
      */
-    private org.apache.synapse.mediators.builtin.LogMediator createLogMediator(LogMediator visualLog)
+    public static org.apache.synapse.mediators.builtin.LogMediator createLogMediator(LogMediator visualLog)
             throws JaxenException {
         org.apache.synapse.mediators.builtin.LogMediator logMediator = new org.apache.synapse.mediators.builtin.LogMediator();
         setCommonProperties(logMediator, visualLog);

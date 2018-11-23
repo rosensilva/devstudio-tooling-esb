@@ -47,7 +47,7 @@ public class HeaderMediatorTransformer extends AbstractEsbNodeTransformer {
         }
     }
 
-    private org.apache.synapse.mediators.transform.HeaderMediator createHeaderMediator(EsbNode subject)
+    public static org.apache.synapse.mediators.transform.HeaderMediator createHeaderMediator(EsbNode subject)
             throws JaxenException {
         /*
          * Check subject.

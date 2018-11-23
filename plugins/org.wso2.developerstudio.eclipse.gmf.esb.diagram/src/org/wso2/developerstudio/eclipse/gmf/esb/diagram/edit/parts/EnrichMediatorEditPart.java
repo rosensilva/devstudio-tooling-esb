@@ -18,11 +18,17 @@ package org.wso2.developerstudio.eclipse.gmf.esb.diagram.edit.parts;
 import static org.wso2.developerstudio.eclipse.gmf.esb.diagram.edit.parts.EditPartConstants.DEFAULT_PROPERTY_VALUE_TEXT;
 import static org.wso2.developerstudio.eclipse.gmf.esb.diagram.edit.parts.EditPartConstants.ENRICH_MEDIATOR_ICON_PATH;
 
+import javax.xml.stream.XMLStreamException;
+
+import org.apache.axiom.om.OMElement;
 import org.apache.commons.lang.StringUtils;
+import org.apache.synapse.config.xml.EnrichMediatorSerializer;
+import org.apache.synapse.config.xml.ValidateMediatorSerializer;
 import org.eclipse.draw2d.IFigure;
 import org.eclipse.draw2d.PositionConstants;
 import org.eclipse.draw2d.Shape;
 import org.eclipse.draw2d.ToolbarLayout;
+import org.eclipse.emf.common.notify.Notification;
 import org.eclipse.gef.EditPart;
 import org.eclipse.gef.EditPolicy;
 import org.eclipse.gef.Request;
@@ -41,8 +47,11 @@ import org.eclipse.gmf.runtime.draw2d.ui.figures.ConstrainedToolbarLayout;
 import org.eclipse.gmf.runtime.draw2d.ui.figures.WrappingLabel;
 import org.eclipse.gmf.runtime.gef.ui.figures.NodeFigure;
 import org.eclipse.gmf.runtime.notation.View;
+import org.eclipse.papyrus.infra.gmfdiag.css.CSSNodeImpl;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.graphics.Color;
+import org.jaxen.JaxenException;
+import org.wso2.developerstudio.eclipse.gmf.esb.FilterMediator;
 import org.wso2.developerstudio.eclipse.gmf.esb.diagram.custom.EsbGraphicalShapeWithLabel;
 import org.wso2.developerstudio.eclipse.gmf.esb.diagram.custom.FixedBorderItemLocator;
 import org.wso2.developerstudio.eclipse.gmf.esb.diagram.custom.FixedSizedAbstractMediator;
@@ -52,6 +61,14 @@ import org.wso2.developerstudio.eclipse.gmf.esb.diagram.custom.utils.CustomToolT
 import org.wso2.developerstudio.eclipse.gmf.esb.diagram.edit.policies.EnrichMediatorCanonicalEditPolicy;
 import org.wso2.developerstudio.eclipse.gmf.esb.diagram.edit.policies.EnrichMediatorItemSemanticEditPolicy;
 import org.wso2.developerstudio.eclipse.gmf.esb.diagram.part.EsbVisualIDRegistry;
+import org.wso2.developerstudio.eclipse.gmf.esb.diagram.validator.GraphicalValidatorUtil;
+import org.wso2.developerstudio.eclipse.gmf.esb.diagram.validator.MediatorValidationUtil;
+import org.wso2.developerstudio.eclipse.gmf.esb.impl.EnrichMediatorImpl;
+import org.wso2.developerstudio.eclipse.gmf.esb.impl.ValidateMediatorImpl;
+import org.wso2.developerstudio.eclipse.gmf.esb.internal.persistence.EnrichMediatorTransformer;
+import org.wso2.developerstudio.eclipse.gmf.esb.internal.persistence.ValidateMediatorTransformer;
+import org.wso2.developerstudio.eclipse.gmf.esb.persistence.TransformationInfo;
+import org.wso2.developerstudio.eclipse.gmf.esb.persistence.TransformerException;
 
 /**
  * @generated NOT
@@ -378,6 +395,34 @@ public class EnrichMediatorEditPart extends FixedSizedAbstractMediator {
 
     }
 
+//    @Override
+//    public void notifyChanged(Notification notification) {
+//        if (this.getModel() instanceof CSSNodeImpl) {
+//            CSSNodeImpl model = (CSSNodeImpl) this.getModel();
+//            if (model.getElement() instanceof EnrichMediatorImpl) {
+//                EnrichMediatorImpl enrichMediatorDataModel = (EnrichMediatorImpl) model.getElement();
+//                org.apache.synapse.mediators.elementary.EnrichMediator enrichMediator = null;
+//                try {
+//                    enrichMediator = EnrichMediatorTransformer
+//                            .createEnrichMediator((FilterMediator) enrichMediatorDataModel);
+//
+//                    EnrichMediatorSerializer enrichMediatorSerializer = new EnrichMediatorSerializer();
+//                    OMElement omElement = enrichMediatorSerializer.serializeSpecificMediator(enrichMediator);
+//
+//                    if (StringUtils
+//                            .isEmpty(MediatorValidationUtil.validateMediatorsFromOEMElement(omElement, "enrich"))) {
+//                        GraphicalValidatorUtil.removeValidationMark(this);
+//                    } else {
+//                        GraphicalValidatorUtil.addValidationMark(this);
+//                    }
+//                } catch (XMLStreamException | JaxenException e) {
+//                    // ignore
+//                }
+//            }
+//        }
+//        super.notifyChanged(notification);
+//    }
+    
     /**
      * @generated
      */

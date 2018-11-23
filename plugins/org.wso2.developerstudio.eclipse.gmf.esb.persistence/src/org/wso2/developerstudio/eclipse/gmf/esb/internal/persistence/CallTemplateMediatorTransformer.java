@@ -73,7 +73,7 @@ public class CallTemplateMediatorTransformer extends AbstractEsbNodeTransformer 
         }
     }
 
-    private InvokeMediator createInvokeMediator(TransformationInfo information, CallTemplateMediator obj)
+    public static InvokeMediator createInvokeMediator(TransformationInfo information, CallTemplateMediator obj)
             throws JaxenException {
 
         InvokeMediator invokeMediator = new InvokeMediator();
@@ -133,7 +133,7 @@ public class CallTemplateMediatorTransformer extends AbstractEsbNodeTransformer 
      * @throws JaxenException
      */
 
-    private SynapsePath getParamExpression(NamespacedProperty namespacedExpression, String xpathValue)
+    private static SynapsePath getParamExpression(NamespacedProperty namespacedExpression, String xpathValue)
             throws JaxenException {
         if (xpathValue.startsWith(JSON_EVAL)) {
             SynapseJsonPath paramExpression = new SynapseJsonPath(xpathValue.substring(10, xpathValue.length() - 1));
@@ -151,7 +151,7 @@ public class CallTemplateMediatorTransformer extends AbstractEsbNodeTransformer 
      * @param paramExpression
      * @throws JaxenException
      */
-    private SynapsePath addNamespaceToParam(NamespacedProperty namespacedExpression, SynapsePath paramExpression)
+    private static SynapsePath addNamespaceToParam(NamespacedProperty namespacedExpression, SynapsePath paramExpression)
             throws JaxenException {
         for (Entry<String, String> entry : namespacedExpression.getNamespaces().entrySet()) {
             paramExpression.addNamespace(entry.getKey(), entry.getValue());

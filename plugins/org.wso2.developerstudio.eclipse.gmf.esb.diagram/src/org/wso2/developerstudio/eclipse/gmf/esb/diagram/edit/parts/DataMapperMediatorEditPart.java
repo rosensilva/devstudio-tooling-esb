@@ -23,7 +23,9 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import org.apache.axiom.om.OMElement;
 import org.apache.commons.lang.StringUtils;
+import org.apache.synapse.config.xml.ValidateMediatorSerializer;
 import org.eclipse.core.internal.resources.File;
 import org.eclipse.core.resources.IFile;
 import org.eclipse.core.resources.ResourcesPlugin;
@@ -33,6 +35,7 @@ import org.eclipse.draw2d.IFigure;
 import org.eclipse.draw2d.PositionConstants;
 import org.eclipse.draw2d.Shape;
 import org.eclipse.draw2d.ToolbarLayout;
+import org.eclipse.emf.common.notify.Notification;
 import org.eclipse.emf.edit.command.SetCommand;
 import org.eclipse.emf.transaction.TransactionalEditingDomain;
 import org.eclipse.gef.EditPart;
@@ -56,9 +59,13 @@ import org.eclipse.gmf.runtime.notation.impl.NodeImpl;
 import org.eclipse.gmf.tooling.runtime.edit.policies.reparent.CreationEditPolicyWithCustomReparent;
 import org.eclipse.jface.dialogs.Dialog;
 import org.eclipse.jface.dialogs.MessageDialog;
+import org.eclipse.papyrus.infra.gmfdiag.css.CSSNodeImpl;
 import org.eclipse.swt.graphics.Color;
 import org.eclipse.swt.widgets.Display;
+import org.jaxen.JaxenException;
+import org.wso2.carbon.mediator.datamapper.config.xml.DataMapperMediatorSerializer;
 import org.wso2.developerstudio.eclipse.gmf.esb.EsbFactory;
+import org.wso2.developerstudio.eclipse.gmf.esb.EsbNode;
 import org.wso2.developerstudio.eclipse.gmf.esb.EsbPackage;
 import org.wso2.developerstudio.eclipse.gmf.esb.RegistryKeyProperty;
 import org.wso2.developerstudio.eclipse.gmf.esb.diagram.custom.EsbGraphicalShapeWithLabel;
@@ -72,7 +79,14 @@ import org.wso2.developerstudio.eclipse.gmf.esb.diagram.custom.utils.CustomToolT
 import org.wso2.developerstudio.eclipse.gmf.esb.diagram.edit.policies.DataMapperMediatorCanonicalEditPolicy;
 import org.wso2.developerstudio.eclipse.gmf.esb.diagram.edit.policies.DataMapperMediatorItemSemanticEditPolicy;
 import org.wso2.developerstudio.eclipse.gmf.esb.diagram.part.EsbVisualIDRegistry;
+import org.wso2.developerstudio.eclipse.gmf.esb.diagram.validator.GraphicalValidatorUtil;
+import org.wso2.developerstudio.eclipse.gmf.esb.diagram.validator.MediatorValidationUtil;
 import org.wso2.developerstudio.eclipse.gmf.esb.impl.DataMapperMediatorImpl;
+import org.wso2.developerstudio.eclipse.gmf.esb.impl.ValidateMediatorImpl;
+import org.wso2.developerstudio.eclipse.gmf.esb.internal.persistence.DataMapperMediatorTransformer;
+import org.wso2.developerstudio.eclipse.gmf.esb.internal.persistence.ValidateMediatorTransformer;
+import org.wso2.developerstudio.eclipse.gmf.esb.persistence.TransformationInfo;
+import org.wso2.developerstudio.eclipse.gmf.esb.persistence.TransformerException;
 import org.wso2.developerstudio.eclipse.platform.core.interfaces.IDeveloperStudioElement;
 import org.wso2.developerstudio.eclipse.platform.core.interfaces.IDeveloperStudioProvider;
 import org.wso2.developerstudio.eclipse.platform.core.interfaces.IDeveloperStudioProviderData;
@@ -602,5 +616,33 @@ public class DataMapperMediatorEditPart extends FixedSizedAbstractMediator {
         IFile file = ResourcesPlugin.getWorkspace().getRoot().getFile(path);
         DataMapperEditor.open(file);
     }
+    
+//    @Override
+//    public void notifyChanged(Notification notification) {
+//        if (this.getModel() instanceof CSSNodeImpl) {
+//            CSSNodeImpl model = (CSSNodeImpl) this.getModel();
+//            if (model.getElement() instanceof DataMapperMediatorImpl) {
+//                DataMapperMediatorImpl dataMapperMediatorDataModel = (DataMapperMediatorImpl) model.getElement();
+//                org.wso2.carbon.mediator.datamapper.DataMapperMediator dataMapperMediator = null;
+//                try {
+//                    dataMapperMediator = DataMapperMediatorTransformer
+//                            .createDataMapperMediator((EsbNode) dataMapperMediatorDataModel);
+//
+//                    DataMapperMediatorSerializer dataMapperMediatorSerializer = new DataMapperMediatorSerializer();
+//                    OMElement omElement = dataMapperMediatorSerializer.serializeSpecificMediator(dataMapperMediator);
+//
+//                    if (StringUtils
+//                            .isEmpty(MediatorValidationUtil.validateMediatorsFromOEMElement(omElement, "datamapper"))) {
+//                        GraphicalValidatorUtil.removeValidationMark(this);
+//                    } else {
+//                        GraphicalValidatorUtil.addValidationMark(this);
+//                    }
+//                } catch (TransformerException | JaxenException e) {
+//                    // ignore
+//                }
+//            }
+//        }
+//        super.notifyChanged(notification);
+//    }
 
 }

@@ -62,7 +62,7 @@ public class SwitchMediatorTransformer extends AbstractEsbNodeTransformer {
         }
     }
 
-    private org.apache.synapse.mediators.filters.SwitchMediator createSwitchMediator(TransformationInfo info,
+    public static org.apache.synapse.mediators.filters.SwitchMediator createSwitchMediator(TransformationInfo info,
             EsbNode subject) throws JaxenException, TransformerException {
 
         Assert.isTrue(subject instanceof SwitchMediator, "Invalid subject.");

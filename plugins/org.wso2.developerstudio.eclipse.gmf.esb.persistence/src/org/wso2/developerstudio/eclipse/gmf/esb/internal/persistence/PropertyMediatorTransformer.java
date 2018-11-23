@@ -50,7 +50,7 @@ import org.wso2.developerstudio.eclipse.logging.core.Logger;
  */
 public class PropertyMediatorTransformer extends AbstractEsbNodeTransformer {
 
-    private final String NEW_PROPERTY = "New Property...";
+    private final static String NEW_PROPERTY = "New Property...";
     private static IDeveloperStudioLog log = Logger.getLog(Activator.PLUGIN_ID);
 
     /**
@@ -87,7 +87,7 @@ public class PropertyMediatorTransformer extends AbstractEsbNodeTransformer {
         }
     }
 
-    private org.apache.synapse.mediators.builtin.PropertyMediator createPropertyMediator(EsbNode subject)
+    public static org.apache.synapse.mediators.builtin.PropertyMediator createPropertyMediator(EsbNode subject)
             throws XMLStreamException, JaxenException, TransformerException {
         // Check subject.
         Assert.isTrue(subject instanceof PropertyMediator, "Invalid subject.");

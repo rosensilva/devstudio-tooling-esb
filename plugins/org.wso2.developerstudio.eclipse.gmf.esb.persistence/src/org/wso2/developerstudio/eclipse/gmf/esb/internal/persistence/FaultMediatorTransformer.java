@@ -76,7 +76,7 @@ public class FaultMediatorTransformer extends AbstractEsbNodeTransformer {
         }
     }
 
-    private org.apache.synapse.mediators.transform.FaultMediator createFaultMediator(EsbNode subject)
+    public static org.apache.synapse.mediators.transform.FaultMediator createFaultMediator(EsbNode subject)
             throws JaxenException, URISyntaxException {
         // Check subject.
         Assert.isTrue(subject instanceof FaultMediator, "Invalid subject.");

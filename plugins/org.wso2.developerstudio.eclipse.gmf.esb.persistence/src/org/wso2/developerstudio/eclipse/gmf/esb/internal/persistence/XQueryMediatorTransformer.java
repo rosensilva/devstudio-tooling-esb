@@ -76,7 +76,7 @@ public class XQueryMediatorTransformer extends AbstractEsbNodeTransformer {
         }
     }
 
-    private org.apache.synapse.mediators.xquery.XQueryMediator createXQueryMediator(EsbNode subject)
+    public static org.apache.synapse.mediators.xquery.XQueryMediator createXQueryMediator(EsbNode subject)
             throws JaxenException {
         Assert.isTrue(subject instanceof XQueryMediator, "Invalid subject.");
         XQueryMediator visualXQuery = (XQueryMediator) subject;

@@ -32,11 +32,16 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import javax.xml.stream.XMLStreamException;
+
+import org.apache.axiom.om.OMElement;
 import org.apache.commons.lang.RandomStringUtils;
 import org.apache.commons.lang.StringUtils;
 import org.apache.maven.model.Plugin;
 import org.apache.maven.model.PluginExecution;
 import org.apache.maven.project.MavenProject;
+import org.apache.synapse.config.xml.PropertyMediatorSerializer;
+import org.apache.synapse.config.xml.SequenceMediatorSerializer;
 import org.codehaus.plexus.util.xml.Xpp3Dom;
 import org.codehaus.plexus.util.xml.pull.XmlPullParserException;
 import org.eclipse.core.resources.IFile;
@@ -88,6 +93,7 @@ import org.eclipse.jface.dialogs.Dialog;
 import org.eclipse.jface.dialogs.IInputValidator;
 import org.eclipse.jface.dialogs.InputDialog;
 import org.eclipse.jface.dialogs.MessageDialog;
+import org.eclipse.papyrus.infra.gmfdiag.css.CSSNodeImpl;
 import org.eclipse.swt.graphics.Color;
 import org.eclipse.swt.widgets.Button;
 import org.eclipse.swt.widgets.Composite;
@@ -101,6 +107,7 @@ import org.eclipse.ui.IWorkbenchPage;
 import org.eclipse.ui.PartInitException;
 import org.eclipse.ui.PlatformUI;
 import org.eclipse.ui.part.FileEditorInput;
+import org.jaxen.JaxenException;
 //import org.wso2.developerstudio.eclipse.artifact.sequence.validators.SequenceTemplate;
 import org.wso2.developerstudio.eclipse.esb.core.ESBMavenConstants;
 import org.wso2.developerstudio.eclipse.esb.core.utils.ESBMediaTypeConstants;
@@ -112,6 +119,7 @@ import org.wso2.developerstudio.eclipse.general.project.artifact.RegistryArtifac
 import org.wso2.developerstudio.eclipse.general.project.artifact.bean.RegistryElement;
 import org.wso2.developerstudio.eclipse.general.project.artifact.bean.RegistryItem;
 import org.wso2.developerstudio.eclipse.gmf.esb.ArtifactType;
+import org.wso2.developerstudio.eclipse.gmf.esb.EsbNode;
 import org.wso2.developerstudio.eclipse.gmf.esb.EsbPackage;
 import org.wso2.developerstudio.eclipse.gmf.esb.KeyType;
 import org.wso2.developerstudio.eclipse.gmf.esb.ProxyService;
@@ -134,6 +142,13 @@ import org.wso2.developerstudio.eclipse.gmf.esb.diagram.part.EsbDiagramEditor;
 import org.wso2.developerstudio.eclipse.gmf.esb.diagram.part.EsbEditorInput;
 import org.wso2.developerstudio.eclipse.gmf.esb.diagram.part.EsbVisualIDRegistry;
 import org.wso2.developerstudio.eclipse.gmf.esb.diagram.providers.EsbElementTypes;
+import org.wso2.developerstudio.eclipse.gmf.esb.diagram.validator.GraphicalValidatorUtil;
+import org.wso2.developerstudio.eclipse.gmf.esb.diagram.validator.MediatorValidationUtil;
+import org.wso2.developerstudio.eclipse.gmf.esb.impl.PropertyMediatorImpl;
+import org.wso2.developerstudio.eclipse.gmf.esb.impl.SequenceImpl;
+import org.wso2.developerstudio.eclipse.gmf.esb.internal.persistence.PropertyMediatorTransformer;
+import org.wso2.developerstudio.eclipse.gmf.esb.internal.persistence.SequenceMediatorTransformer;
+import org.wso2.developerstudio.eclipse.gmf.esb.persistence.TransformerException;
 import org.wso2.developerstudio.eclipse.logging.core.IDeveloperStudioLog;
 import org.wso2.developerstudio.eclipse.logging.core.Logger;
 import org.wso2.developerstudio.eclipse.maven.util.MavenUtils;
@@ -209,6 +224,7 @@ public class SequenceEditPart extends FixedSizedAbstractMediator {
         // would let children add reasonable editpolicies
         // removeEditPolicy(org.eclipse.gmf.runtime.diagram.ui.editpolicies.EditPolicyRoles.CONNECTION_HANDLES_ROLE);
     }
+    
 
     /**
      * @generated
@@ -270,7 +286,29 @@ public class SequenceEditPart extends FixedSizedAbstractMediator {
                         }
                     }
                 }
+            }
+        }
+        if (this.getModel() instanceof CSSNodeImpl) {
+            GraphicalValidatorUtil.addValidationMark(this);
+            CSSNodeImpl model = (CSSNodeImpl) this.getModel();
+            if (model.getElement() instanceof SequenceImpl) {
+                SequenceImpl sequenceMediatorDataModel = (SequenceImpl) model.getElement();
+                try {
+                    org.apache.synapse.mediators.base.SequenceMediator  sequenceMediator = SequenceMediatorTransformer
+                            .createSequenceMediator((EsbNode) sequenceMediatorDataModel);
 
+                    SequenceMediatorSerializer sequenceMediatorSerializer = new SequenceMediatorSerializer();
+                    OMElement omElement = sequenceMediatorSerializer.serializeSpecificMediator(sequenceMediator);
+
+                    if (!StringUtils
+                            .isEmpty(MediatorValidationUtil.validateMediatorsFromOEMElement(omElement, "sequence"))) {
+                        GraphicalValidatorUtil.removeValidationMark(this);
+                    } else {
+                        GraphicalValidatorUtil.addValidationMark(this);
+                    }
+                } catch (JaxenException e) {
+                    // ignore
+                }
             }
         }
     }
@@ -1089,6 +1127,8 @@ public class SequenceEditPart extends FixedSizedAbstractMediator {
             return recieveSequence;
         }
     }
+    
+    
 
     private ArtifactTemplate[] getSequenceTemplates() {
         Map<String, List<String>> filters = new HashMap<String, List<String>>();

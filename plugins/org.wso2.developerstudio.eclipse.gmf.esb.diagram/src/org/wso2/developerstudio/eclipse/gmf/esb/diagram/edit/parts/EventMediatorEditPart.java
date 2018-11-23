@@ -18,11 +18,14 @@ package org.wso2.developerstudio.eclipse.gmf.esb.diagram.edit.parts;
 import static org.wso2.developerstudio.eclipse.gmf.esb.diagram.edit.parts.EditPartConstants.DEFAULT_PROPERTY_VALUE_TEXT;
 import static org.wso2.developerstudio.eclipse.gmf.esb.diagram.edit.parts.EditPartConstants.EVENT_MEDIATOR_ICON_PATH;
 
+import org.apache.axiom.om.OMElement;
 import org.apache.commons.lang.StringUtils;
+import org.apache.synapse.config.xml.EnqueueMediatorSerializer;
 import org.eclipse.draw2d.IFigure;
 import org.eclipse.draw2d.PositionConstants;
 import org.eclipse.draw2d.Shape;
 import org.eclipse.draw2d.ToolbarLayout;
+import org.eclipse.emf.common.notify.Notification;
 import org.eclipse.gef.EditPart;
 import org.eclipse.gef.EditPolicy;
 import org.eclipse.gef.Request;
@@ -41,8 +44,12 @@ import org.eclipse.gmf.runtime.draw2d.ui.figures.ConstrainedToolbarLayout;
 import org.eclipse.gmf.runtime.draw2d.ui.figures.WrappingLabel;
 import org.eclipse.gmf.runtime.gef.ui.figures.NodeFigure;
 import org.eclipse.gmf.runtime.notation.View;
+import org.eclipse.papyrus.infra.gmfdiag.css.CSSNodeImpl;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.graphics.Color;
+import org.jaxen.JaxenException;
+import org.wso2.carbon.mediator.event.xml.EventMediatorSerializer;
+import org.wso2.developerstudio.eclipse.gmf.esb.EsbNode;
 import org.wso2.developerstudio.eclipse.gmf.esb.diagram.custom.EsbGraphicalShapeWithLabel;
 import org.wso2.developerstudio.eclipse.gmf.esb.diagram.custom.FixedBorderItemLocator;
 import org.wso2.developerstudio.eclipse.gmf.esb.diagram.custom.FixedSizedAbstractMediator;
@@ -52,6 +59,13 @@ import org.wso2.developerstudio.eclipse.gmf.esb.diagram.custom.utils.CustomToolT
 import org.wso2.developerstudio.eclipse.gmf.esb.diagram.edit.policies.EventMediatorCanonicalEditPolicy;
 import org.wso2.developerstudio.eclipse.gmf.esb.diagram.edit.policies.EventMediatorItemSemanticEditPolicy;
 import org.wso2.developerstudio.eclipse.gmf.esb.diagram.part.EsbVisualIDRegistry;
+import org.wso2.developerstudio.eclipse.gmf.esb.diagram.validator.GraphicalValidatorUtil;
+import org.wso2.developerstudio.eclipse.gmf.esb.diagram.validator.MediatorValidationUtil;
+import org.wso2.developerstudio.eclipse.gmf.esb.impl.EnqueueMediatorImpl;
+import org.wso2.developerstudio.eclipse.gmf.esb.impl.EventMediatorImpl;
+import org.wso2.developerstudio.eclipse.gmf.esb.internal.persistence.EnqueueMediatorTransformer;
+import org.wso2.developerstudio.eclipse.gmf.esb.internal.persistence.EventMediatorTransformer;
+import org.wso2.developerstudio.eclipse.gmf.esb.persistence.TransformationInfo;
 
 /**
  * @generated NOT
@@ -378,6 +392,34 @@ public class EventMediatorEditPart extends FixedSizedAbstractMediator {
         }
 
     }
+
+//    @Override
+//    public void notifyChanged(Notification notification) {
+//        if (this.getModel() instanceof CSSNodeImpl) {
+//            CSSNodeImpl model = (CSSNodeImpl) this.getModel();
+//            if (model.getElement() instanceof EventMediatorImpl) {
+//                EventMediatorImpl eventMediatorDataModel = (EventMediatorImpl) model.getElement();
+//                org.wso2.carbon.mediator.event.EventMediator eventMediator = null;
+//                try {
+//                    eventMediator = EventMediatorTransformer.createEventMediator(new TransformationInfo(),
+//                            (EsbNode) eventMediatorDataModel);
+//                    EventMediatorSerializer eventMediatorSerializer = new EventMediatorSerializer();
+//                    OMElement omElement = eventMediatorSerializer.serializeSpecificMediator(eventMediator);
+//
+//                    if (StringUtils
+//                            .isEmpty(MediatorValidationUtil.validateMediatorsFromOEMElement(omElement, "enqueue"))) {
+//                        GraphicalValidatorUtil.removeValidationMark(this);
+//                    } else {
+//                        GraphicalValidatorUtil.addValidationMark(this);
+//                    }
+//                } catch (JaxenException e) {
+//                    // ignore
+//                }
+//
+//            }
+//        }
+//        super.notifyChanged(notification);
+//    }
 
     /**
      * @generated NOT

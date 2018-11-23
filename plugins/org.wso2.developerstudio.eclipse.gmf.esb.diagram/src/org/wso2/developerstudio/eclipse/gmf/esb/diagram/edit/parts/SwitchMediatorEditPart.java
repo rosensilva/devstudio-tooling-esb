@@ -20,7 +20,10 @@ import static org.wso2.developerstudio.eclipse.gmf.esb.diagram.edit.parts.EditPa
 
 import java.util.ArrayList;
 
+import org.apache.axiom.om.OMElement;
 import org.apache.commons.lang.StringUtils;
+import org.apache.synapse.config.xml.LogMediatorSerializer;
+import org.apache.synapse.config.xml.SwitchMediatorSerializer;
 import org.eclipse.draw2d.GridData;
 import org.eclipse.draw2d.IFigure;
 import org.eclipse.draw2d.PositionConstants;
@@ -50,18 +53,36 @@ import org.eclipse.gmf.runtime.draw2d.ui.figures.WrappingLabel;
 import org.eclipse.gmf.runtime.gef.ui.figures.DefaultSizeNodeFigure;
 import org.eclipse.gmf.runtime.gef.ui.figures.NodeFigure;
 import org.eclipse.gmf.runtime.notation.View;
+import org.eclipse.papyrus.infra.gmfdiag.css.CSSNodeImpl;
 import org.eclipse.swt.graphics.Color;
+import org.jaxen.JaxenException;
+import org.wso2.developerstudio.eclipse.gmf.esb.LogMediator;
 import org.wso2.developerstudio.eclipse.gmf.esb.SwitchMediator;
+import org.wso2.developerstudio.eclipse.gmf.esb.diagram.custom.AbstractMediator;
+import org.wso2.developerstudio.eclipse.gmf.esb.diagram.custom.CloneMediatorGraphicalShape;
+import org.wso2.developerstudio.eclipse.gmf.esb.diagram.custom.EntitlementMediatorGraphicalShape;
+import org.wso2.developerstudio.eclipse.gmf.esb.diagram.custom.EsbGroupingShape;
+import org.wso2.developerstudio.eclipse.gmf.esb.diagram.custom.FilterMediatorGraphicalShape;
 import org.wso2.developerstudio.eclipse.gmf.esb.diagram.custom.FixedBorderItemLocator;
+import org.wso2.developerstudio.eclipse.gmf.esb.diagram.custom.FixedSizedAbstractMediator;
 import org.wso2.developerstudio.eclipse.gmf.esb.diagram.custom.MultipleCompartmentComplexFiguredAbstractMediator;
 import org.wso2.developerstudio.eclipse.gmf.esb.diagram.custom.ShowPropertyViewEditPolicy;
 import org.wso2.developerstudio.eclipse.gmf.esb.diagram.custom.SwitchMediatorGraphicalShape;
+import org.wso2.developerstudio.eclipse.gmf.esb.diagram.custom.complexFiguredAbstractMediator;
 import org.wso2.developerstudio.eclipse.gmf.esb.diagram.custom.editpolicy.FeedbackIndicateDragDropEditPolicy;
 import org.wso2.developerstudio.eclipse.gmf.esb.diagram.custom.utils.CustomToolTip;
 import org.wso2.developerstudio.eclipse.gmf.esb.diagram.custom.utils.SwitchMediatorUtils;
 import org.wso2.developerstudio.eclipse.gmf.esb.diagram.edit.policies.SwitchMediatorCanonicalEditPolicy;
 import org.wso2.developerstudio.eclipse.gmf.esb.diagram.edit.policies.SwitchMediatorItemSemanticEditPolicy;
 import org.wso2.developerstudio.eclipse.gmf.esb.diagram.part.EsbVisualIDRegistry;
+import org.wso2.developerstudio.eclipse.gmf.esb.diagram.validator.GraphicalValidatorUtil;
+import org.wso2.developerstudio.eclipse.gmf.esb.diagram.validator.MediatorValidationUtil;
+import org.wso2.developerstudio.eclipse.gmf.esb.impl.LogMediatorImpl;
+import org.wso2.developerstudio.eclipse.gmf.esb.impl.SwitchMediatorImpl;
+import org.wso2.developerstudio.eclipse.gmf.esb.internal.persistence.LogMediatorTransformer;
+import org.wso2.developerstudio.eclipse.gmf.esb.internal.persistence.SwitchMediatorTransformer;
+import org.wso2.developerstudio.eclipse.gmf.esb.persistence.TransformationInfo;
+import org.wso2.developerstudio.eclipse.gmf.esb.persistence.TransformerException;
 
 /**
  * @generated NOT
@@ -73,6 +94,7 @@ public class SwitchMediatorEditPart extends MultipleCompartmentComplexFiguredAbs
     int i = 0;
     private int activeCount = 0;
     private boolean reorderdOnUndo = false;
+    int count = 0;
 
     /**
      * @generated
@@ -221,12 +243,34 @@ public class SwitchMediatorEditPart extends MultipleCompartmentComplexFiguredAbs
     @Override
     public void notifyChanged(Notification notification) {
         super.notifyChanged(notification);
+
         // Fixing TOOLS-1786
         if (notification.getEventType() == Notification.SET && activeCount == 1 && !reorderdOnUndo && !reversed) {
             EObject parentContainer = ((org.eclipse.gmf.runtime.notation.impl.NodeImpl) (this).getModel()).getElement();
             if (((SwitchMediator) parentContainer).getCaseBranches().size() > 1) {
                 SwitchMediatorUtils.reorderWhenForward(this);
                 reorderdOnUndo = true;
+            }
+        }
+        if (this.getModel() instanceof CSSNodeImpl) {
+            CSSNodeImpl model = (CSSNodeImpl) this.getModel();
+            if (model.getElement() instanceof SwitchMediatorImpl) {
+                SwitchMediatorImpl switchMediatorDataModel = (SwitchMediatorImpl) model.getElement();
+                try {
+                    org.apache.synapse.mediators.filters.SwitchMediator switchMediator = SwitchMediatorTransformer
+                            .createSwitchMediator(new TransformationInfo(), (SwitchMediator) switchMediatorDataModel);
+                    SwitchMediatorSerializer switchMediatorSerializer = new SwitchMediatorSerializer();
+                    OMElement omElement = switchMediatorSerializer.serializeSpecificMediator(switchMediator);
+
+                    if (StringUtils
+                            .isEmpty(MediatorValidationUtil.validateMediatorsFromOEMElement(omElement, "switch"))) {
+                        GraphicalValidatorUtil.removeValidationMark(this);
+                    } else {
+                        GraphicalValidatorUtil.addValidationMark(this);
+                    }
+                } catch (TransformerException | JaxenException e) {
+                    // ignore
+                }
             }
         }
     }
@@ -406,6 +450,54 @@ public class SwitchMediatorEditPart extends MultipleCompartmentComplexFiguredAbs
             return new CustomToolTip().getCustomToolTipShape(toolTipMessage);
         }
 
+    }
+
+    /**
+     * This method add breakpoint mark to the selected edit part
+     */
+    public static void addBreakpointMark(AbstractMediator part) {
+        if (part instanceof FixedSizedAbstractMediator && !(part instanceof CloudConnectorOperationEditPart)) {
+            ((FixedSizedAbstractMediator) part).getPrimaryShape().addValidationPointMark();
+        } else if (part instanceof complexFiguredAbstractMediator) {
+            RoundedRectangle shape = ((complexFiguredAbstractMediator) part).getPrimaryShape();
+            if (shape instanceof EsbGroupingShape) {
+                ((EsbGroupingShape) shape).addValidationMark();
+            } else if (shape instanceof SwitchMediatorGraphicalShape) {
+                ((SwitchMediatorGraphicalShape) shape).addValidationMark();
+            } else if (shape instanceof FilterMediatorGraphicalShape) {
+                ((FilterMediatorGraphicalShape) shape).addBreakpointMark();
+            } else if (shape instanceof CloneMediatorGraphicalShape) {
+                ((CloneMediatorGraphicalShape) shape).addBreakpointMark();
+            } else if (shape instanceof EntitlementMediatorGraphicalShape) {
+                ((EntitlementMediatorGraphicalShape) shape).addBreakpointMark();
+            }
+        }
+    }
+
+    /**
+     * This method remove breakpoint mark from the selected edit part
+     */
+    public static void removeBreakpointMark(AbstractMediator part) {
+        if (part instanceof FixedSizedAbstractMediator) {
+            ((FixedSizedAbstractMediator) part).getPrimaryShape().removeValidationPointMark();
+        } else if (part instanceof complexFiguredAbstractMediator) {
+            RoundedRectangle shape = ((complexFiguredAbstractMediator) part).getPrimaryShape();
+            if (shape instanceof EsbGroupingShape) {
+                ((EsbGroupingShape) shape).removeBreakpointMark();
+            } else if (shape instanceof SwitchMediatorGraphicalShape) {
+                ((SwitchMediatorGraphicalShape) shape).removeValidationPointMark();
+            } else if (shape instanceof FilterMediatorGraphicalShape) {
+                ((FilterMediatorGraphicalShape) shape).removeBreakpointMark();
+            } else if (shape instanceof CloneMediatorGraphicalShape) {
+                ((CloneMediatorGraphicalShape) shape).removeBreakpointMark();
+            } else if (shape instanceof EntitlementMediatorGraphicalShape) {
+                ((EntitlementMediatorGraphicalShape) shape).removeBreakpointMark();
+            } else {
+                throw new IllegalArgumentException(
+                        "Removing break point mark is not implemented for type " + part.getClass());
+            }
+        }
+        part.setBreakpointStatus(false);
     }
 
     /**

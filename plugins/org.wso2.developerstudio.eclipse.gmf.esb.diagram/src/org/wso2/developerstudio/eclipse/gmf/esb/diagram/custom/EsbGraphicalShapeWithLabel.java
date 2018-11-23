@@ -50,6 +50,7 @@ public class EsbGraphicalShapeWithLabel extends RoundedRectangle {
     protected Layer figureLayer;
     private Layer breakpointLayer;
     private Layer skipPointLayer;
+    private Layer validationPointLayer;
     protected String toolTipMessage;
     private Color borderColor;
     private boolean isEndpoint;
@@ -115,6 +116,42 @@ public class EsbGraphicalShapeWithLabel extends RoundedRectangle {
         iconImageFigure.translate((this.getSize().width / 2 - mainImageRectangle.getSize().width / 2 + 3), 0);
         breakpointLayer.add(breakpointImageRectangle, constraintBreakpointImageRectangle);
         pane.add(breakpointLayer);
+    }
+    
+    /**
+     * This method adds layer with validation mark to the figure pane to show
+     * the incomplete mediator configuration
+     */
+    public void addValidationPointMark() {
+        if (validationPointLayer == null) {
+            validationPointLayer = new Layer();
+            validationPointLayer.setLayoutManager(new StackLayout());
+            GridData constraintBreakpointImageRectangle = new GridData();
+            constraintBreakpointImageRectangle.verticalAlignment = GridData.BEGINNING;
+            constraintBreakpointImageRectangle.horizontalAlignment = GridData.BEGINNING;
+            constraintBreakpointImageRectangle.verticalSpan = 1;
+            ImageFigure iconImageFigure = EditPartDrawingHelper.getIconImageFigure(VALIDATION_POINT_IMAGE_LOCATION, 16,
+                    16);
+            RoundedRectangle breakpointImageRectangle = new RoundedRectangle();
+            breakpointImageRectangle.setCornerDimensions(new Dimension(2, 2));
+            breakpointImageRectangle.setOutline(false);
+            breakpointImageRectangle.setPreferredSize(new Dimension(15, 15));
+            breakpointImageRectangle.setAlpha(0);
+            breakpointImageRectangle.add(iconImageFigure);
+            iconImageFigure.translate((this.getSize().width - 20), 2);
+            validationPointLayer.add(breakpointImageRectangle, constraintBreakpointImageRectangle);
+            pane.add(validationPointLayer);
+        }
+    }
+    
+    /**
+     * This method remove validation point layer
+     */
+    public void removeValidationPointMark() {
+        if (validationPointLayer != null) {
+            pane.remove(validationPointLayer);
+            validationPointLayer = null;
+        }
     }
 
     /**

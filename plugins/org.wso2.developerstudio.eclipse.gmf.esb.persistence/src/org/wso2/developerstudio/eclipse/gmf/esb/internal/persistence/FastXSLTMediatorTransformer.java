@@ -71,7 +71,7 @@ public class FastXSLTMediatorTransformer extends AbstractEsbNodeTransformer {
 
     }
 
-    private org.wso2.carbon.mediator.fastXSLT.FastXSLTMediator createFastXSLTMediator(EsbNode subject) {
+    public static org.wso2.carbon.mediator.fastXSLT.FastXSLTMediator createFastXSLTMediator(EsbNode subject) {
         Assert.isTrue(subject instanceof FastXSLTMediator, INVALID_SUBJECT);
         FastXSLTMediator visualFastXSLT = (FastXSLTMediator) subject;
         org.wso2.carbon.mediator.fastXSLT.FastXSLTMediator fastXsltMediator = new org.wso2.carbon.mediator.fastXSLT.FastXSLTMediator();

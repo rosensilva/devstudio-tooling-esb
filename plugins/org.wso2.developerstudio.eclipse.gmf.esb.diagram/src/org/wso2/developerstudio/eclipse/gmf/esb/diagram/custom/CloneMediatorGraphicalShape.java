@@ -35,6 +35,8 @@ import org.eclipse.swt.graphics.Image;
 import org.eclipse.swt.widgets.Display;
 import org.wso2.developerstudio.eclipse.gmf.esb.diagram.custom.utils.DiagramCustomConstants;
 import org.wso2.developerstudio.eclipse.gmf.esb.diagram.custom.utils.ImageHolder;
+
+import static org.wso2.developerstudio.eclipse.gmf.esb.diagram.custom.utils.DiagramCustomConstants.VALIDATION_POINT_IMAGE_LOCATION;
 import static org.wso2.developerstudio.eclipse.gmf.esb.diagram.edit.parts.EditPartConstants.CLONE_MEDIATOR_ICON_PATH;
 
 /**
@@ -50,6 +52,7 @@ public class CloneMediatorGraphicalShape extends RoundedRectangle {
     private Layer figureLayer;
     private Layer breakpointLayer;
     private Layer skipPointLayer;
+    private Layer validationPointLayer;
     protected String toolTipMessage;
 
     public CloneMediatorGraphicalShape() {
@@ -123,6 +126,44 @@ public class CloneMediatorGraphicalShape extends RoundedRectangle {
             containerInsideLeftRectangle.add(pane);
         }
     }
+    
+    /**
+     * This method adds layer with validation mark to the figure pane to show
+     * the incomplete mutator configuration
+     */
+    public void addValidationMark() {
+        if (validationPointLayer == null) {
+            validationPointLayer = new Layer();
+            validationPointLayer.setLayoutManager(new StackLayout());
+            GridData constraintValidationMarkImageRectangle = new GridData();
+            constraintValidationMarkImageRectangle.verticalAlignment = GridData.BEGINNING;
+            constraintValidationMarkImageRectangle.horizontalAlignment = GridData.BEGINNING;
+            constraintValidationMarkImageRectangle.verticalSpan = 1;
+            ImageFigure iconImageFigure = EditPartDrawingHelper.getIconImageFigure(VALIDATION_POINT_IMAGE_LOCATION, 16,
+                    16);
+            RoundedRectangle validationPointImageRectangle = new RoundedRectangle();
+            validationPointImageRectangle.setCornerDimensions(new Dimension(2, 2));
+            validationPointImageRectangle.setOutline(false);
+            validationPointImageRectangle.setPreferredSize(new Dimension(10, containerInsideLeftRectangle.getSize().height));
+            validationPointImageRectangle.setAlpha(0);
+            validationPointImageRectangle.add(iconImageFigure);
+            iconImageFigure.translate(containerInsideLeftRectangle.getSize().width - 30, containerInsideLeftRectangle.getSize().height / 2
+                    - DiagramCustomConstants.VALIDATIONPOINT_IMAGE_OFFSET_VALUE);
+            validationPointLayer.add(validationPointImageRectangle, constraintValidationMarkImageRectangle);
+            pane.add(validationPointLayer);
+        }
+    }
+
+    /**
+     * This method remove validation point layer
+     */
+    public void removeValidationPointMark() {
+        if (validationPointLayer != null) {
+            pane.remove(validationPointLayer);
+            validationPointLayer = null;
+        }
+    }
+
 
     public void removeBreakpointMark() {
         if (breakpointLayer != null) {

@@ -18,11 +18,14 @@ package org.wso2.developerstudio.eclipse.gmf.esb.diagram.edit.parts;
 import static org.wso2.developerstudio.eclipse.gmf.esb.diagram.edit.parts.EditPartConstants.BAM_MEDIATOR_ICON_PATH;
 import static org.wso2.developerstudio.eclipse.gmf.esb.diagram.edit.parts.EditPartConstants.DEFAULT_PROPERTY_VALUE_TEXT;
 
+import org.apache.axiom.om.OMElement;
 import org.apache.commons.lang.StringUtils;
+import org.apache.synapse.mediators.throttle.ThrottleMediatorSerializer;
 import org.eclipse.draw2d.IFigure;
 import org.eclipse.draw2d.PositionConstants;
 import org.eclipse.draw2d.Shape;
 import org.eclipse.draw2d.ToolbarLayout;
+import org.eclipse.emf.common.notify.Notification;
 import org.eclipse.gef.EditPart;
 import org.eclipse.gef.EditPolicy;
 import org.eclipse.gef.Request;
@@ -41,8 +44,11 @@ import org.eclipse.gmf.runtime.draw2d.ui.figures.ConstrainedToolbarLayout;
 import org.eclipse.gmf.runtime.draw2d.ui.figures.WrappingLabel;
 import org.eclipse.gmf.runtime.gef.ui.figures.NodeFigure;
 import org.eclipse.gmf.runtime.notation.View;
+import org.eclipse.papyrus.infra.gmfdiag.css.CSSNodeImpl;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.graphics.Color;
+import org.wso2.carbon.mediator.bam.xml.BamMediatorSerializer;
+import org.wso2.developerstudio.eclipse.gmf.esb.EsbNode;
 import org.wso2.developerstudio.eclipse.gmf.esb.diagram.custom.EsbGraphicalShapeWithLabel;
 import org.wso2.developerstudio.eclipse.gmf.esb.diagram.custom.FixedBorderItemLocator;
 import org.wso2.developerstudio.eclipse.gmf.esb.diagram.custom.FixedSizedAbstractMediator;
@@ -51,6 +57,14 @@ import org.wso2.developerstudio.eclipse.gmf.esb.diagram.custom.utils.CustomToolT
 import org.wso2.developerstudio.eclipse.gmf.esb.diagram.edit.policies.BAMMediatorCanonicalEditPolicy;
 import org.wso2.developerstudio.eclipse.gmf.esb.diagram.edit.policies.BAMMediatorItemSemanticEditPolicy;
 import org.wso2.developerstudio.eclipse.gmf.esb.diagram.part.EsbVisualIDRegistry;
+import org.wso2.developerstudio.eclipse.gmf.esb.diagram.validator.GraphicalValidatorUtil;
+import org.wso2.developerstudio.eclipse.gmf.esb.diagram.validator.MediatorValidationUtil;
+import org.wso2.developerstudio.eclipse.gmf.esb.impl.BAMMediatorImpl;
+import org.wso2.developerstudio.eclipse.gmf.esb.impl.ThrottleMediatorImpl;
+import org.wso2.developerstudio.eclipse.gmf.esb.internal.persistence.BAMMediatorTransformer;
+import org.wso2.developerstudio.eclipse.gmf.esb.internal.persistence.ThrottleMediatorTransformer;
+import org.wso2.developerstudio.eclipse.gmf.esb.persistence.TransformationInfo;
+import org.wso2.developerstudio.eclipse.gmf.esb.persistence.TransformerException;
 
 /**
  * @generated NOT
@@ -340,6 +354,34 @@ public class BAMMediatorEditPart extends FixedSizedAbstractMediator {
             return new CustomToolTip().getCustomToolTipShape(toolTipMessage);
         }
 
+    }
+    
+    @Override
+    public void notifyChanged(Notification notification) {
+        if (this.getModel() instanceof CSSNodeImpl) {
+            CSSNodeImpl model = (CSSNodeImpl) this.getModel();
+            if (model.getElement() instanceof BAMMediatorImpl) {
+                BAMMediatorImpl bAMMediatorDataModel = (BAMMediatorImpl) model.getElement();
+                org.wso2.carbon.mediator.bam.BamMediator bAMMediator = null;
+                try {
+                    bAMMediator = BAMMediatorTransformer
+                            .createBAMMediator((EsbNode) bAMMediatorDataModel, new TransformationInfo());
+
+                    BamMediatorSerializer bamMediatorSerializer = new BamMediatorSerializer();
+                    OMElement omElement = bamMediatorSerializer.serializeSpecificMediator(bAMMediator);
+
+                    if (StringUtils
+                            .isEmpty(MediatorValidationUtil.validateMediatorsFromOEMElement(omElement, "bam"))) {
+                        GraphicalValidatorUtil.removeValidationMark(this);
+                    } else {
+                        GraphicalValidatorUtil.addValidationMark(this);
+                    }
+                } catch (TransformerException e) {
+                    // ignore
+                }
+            }
+        }
+        super.notifyChanged(notification);
     }
 
     /**

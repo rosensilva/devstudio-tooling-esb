@@ -33,7 +33,7 @@ public class EnqueueMediatorTransformer extends AbstractEsbNodeTransformer {
 
     }
 
-    private org.apache.synapse.mediators.builtin.EnqueueMediator createEnqueueMediator(EsbNode subject) {
+    public static org.apache.synapse.mediators.builtin.EnqueueMediator createEnqueueMediator(EsbNode subject) {
 
         // Check subject.
         Assert.isTrue(subject instanceof EnqueueMediator, "Invalid subject.");

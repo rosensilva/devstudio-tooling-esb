@@ -50,7 +50,7 @@ public class BAMMediatorTransformer extends AbstractEsbNodeTransformer {
 
     }
 
-    private org.wso2.carbon.mediator.bam.BamMediator createBAMMediator(EsbNode subject, TransformationInfo information)
+    public static org.wso2.carbon.mediator.bam.BamMediator createBAMMediator(EsbNode subject, TransformationInfo information)
             throws TransformerException {
 
         if (subject instanceof BAMMediator) {

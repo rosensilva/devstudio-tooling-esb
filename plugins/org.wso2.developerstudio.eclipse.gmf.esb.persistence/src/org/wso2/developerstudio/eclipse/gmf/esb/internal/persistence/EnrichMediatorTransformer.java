@@ -42,10 +42,10 @@ import org.wso2.developerstudio.eclipse.gmf.esb.persistence.TransformerException
  * corresponding synapse artifact(s).
  */
 public class EnrichMediatorTransformer extends AbstractEsbNodeTransformer {
-    private final String ENV = "envelope";
-    private final String BDY = "body";
-    private final String CUS = "custom";
-    private final String PROP = "property";
+    private static final String ENV = "envelope";
+    private static final String BDY = "body";
+    private static final String CUS = "custom";
+    private static final String PROP = "property";
 
     /**
      * {@inheritDoc}
@@ -79,7 +79,7 @@ public class EnrichMediatorTransformer extends AbstractEsbNodeTransformer {
         }
     }
 
-    private org.apache.synapse.mediators.elementary.EnrichMediator createEnrichMediator(EsbNode subject)
+    public static org.apache.synapse.mediators.elementary.EnrichMediator createEnrichMediator(EsbNode subject)
             throws XMLStreamException, JaxenException {
         // Check subject.
         Assert.isTrue(subject instanceof EnrichMediator, "Invalid subject.");

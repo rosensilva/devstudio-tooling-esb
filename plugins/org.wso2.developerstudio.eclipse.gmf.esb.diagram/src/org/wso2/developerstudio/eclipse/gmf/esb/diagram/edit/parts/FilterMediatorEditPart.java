@@ -18,7 +18,10 @@ package org.wso2.developerstudio.eclipse.gmf.esb.diagram.edit.parts;
 import static org.wso2.developerstudio.eclipse.gmf.esb.diagram.edit.parts.EditPartConstants.DEFAULT_PROPERTY_VALUE_TEXT;
 import static org.wso2.developerstudio.eclipse.gmf.esb.diagram.edit.parts.EditPartConstants.FILTER_MEDIATOR_ICON_PATH;
 
+import org.apache.axiom.om.OMElement;
 import org.apache.commons.lang.StringUtils;
+import org.apache.synapse.config.xml.FilterMediatorSerializer;
+import org.apache.synapse.config.xml.LogMediatorSerializer;
 import org.eclipse.draw2d.GridData;
 import org.eclipse.draw2d.IFigure;
 import org.eclipse.draw2d.PositionConstants;
@@ -27,6 +30,7 @@ import org.eclipse.draw2d.Shape;
 import org.eclipse.draw2d.StackLayout;
 import org.eclipse.draw2d.ToolbarLayout;
 import org.eclipse.draw2d.geometry.Dimension;
+import org.eclipse.emf.common.notify.Notification;
 import org.eclipse.gef.EditPart;
 import org.eclipse.gef.EditPolicy;
 import org.eclipse.gef.Request;
@@ -46,17 +50,35 @@ import org.eclipse.gmf.runtime.draw2d.ui.figures.WrappingLabel;
 import org.eclipse.gmf.runtime.gef.ui.figures.DefaultSizeNodeFigure;
 import org.eclipse.gmf.runtime.gef.ui.figures.NodeFigure;
 import org.eclipse.gmf.runtime.notation.View;
+import org.eclipse.papyrus.infra.gmfdiag.css.CSSNodeImpl;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.graphics.Color;
+import org.jaxen.JaxenException;
+import org.wso2.developerstudio.eclipse.gmf.esb.FilterMediator;
+import org.wso2.developerstudio.eclipse.gmf.esb.LogMediator;
+import org.wso2.developerstudio.eclipse.gmf.esb.diagram.custom.AbstractMediator;
+import org.wso2.developerstudio.eclipse.gmf.esb.diagram.custom.CloneMediatorGraphicalShape;
+import org.wso2.developerstudio.eclipse.gmf.esb.diagram.custom.EntitlementMediatorGraphicalShape;
+import org.wso2.developerstudio.eclipse.gmf.esb.diagram.custom.EsbGroupingShape;
 import org.wso2.developerstudio.eclipse.gmf.esb.diagram.custom.FilterMediatorGraphicalShape;
 import org.wso2.developerstudio.eclipse.gmf.esb.diagram.custom.FixedBorderItemLocator;
+import org.wso2.developerstudio.eclipse.gmf.esb.diagram.custom.FixedSizedAbstractMediator;
 import org.wso2.developerstudio.eclipse.gmf.esb.diagram.custom.MultipleCompartmentComplexFiguredAbstractMediator;
 import org.wso2.developerstudio.eclipse.gmf.esb.diagram.custom.ShowPropertyViewEditPolicy;
+import org.wso2.developerstudio.eclipse.gmf.esb.diagram.custom.SwitchMediatorGraphicalShape;
+import org.wso2.developerstudio.eclipse.gmf.esb.diagram.custom.complexFiguredAbstractMediator;
 import org.wso2.developerstudio.eclipse.gmf.esb.diagram.custom.editpolicy.FeedbackIndicateDragDropEditPolicy;
 import org.wso2.developerstudio.eclipse.gmf.esb.diagram.custom.utils.CustomToolTip;
 import org.wso2.developerstudio.eclipse.gmf.esb.diagram.edit.policies.FilterMediatorCanonicalEditPolicy;
 import org.wso2.developerstudio.eclipse.gmf.esb.diagram.edit.policies.FilterMediatorItemSemanticEditPolicy;
 import org.wso2.developerstudio.eclipse.gmf.esb.diagram.part.EsbVisualIDRegistry;
+import org.wso2.developerstudio.eclipse.gmf.esb.diagram.validator.GraphicalValidatorUtil;
+import org.wso2.developerstudio.eclipse.gmf.esb.diagram.validator.MediatorValidationUtil;
+import org.wso2.developerstudio.eclipse.gmf.esb.impl.FilterMediatorImpl;
+import org.wso2.developerstudio.eclipse.gmf.esb.impl.LogMediatorImpl;
+import org.wso2.developerstudio.eclipse.gmf.esb.internal.persistence.FilterMediatorTransformer;
+import org.wso2.developerstudio.eclipse.gmf.esb.internal.persistence.LogMediatorTransformer;
+import org.wso2.developerstudio.eclipse.gmf.esb.persistence.TransformerException;
 
 /**
  * @generated NOT
@@ -422,6 +444,36 @@ public class FilterMediatorEditPart extends MultipleCompartmentComplexFiguredAbs
             return new CustomToolTip().getCustomToolTipShape(toolTipMessage);
         }
 
+    }
+
+    int count = 0;
+
+    @Override
+    public void notifyChanged(Notification notification) {
+        if (this.getModel() instanceof CSSNodeImpl) {
+            CSSNodeImpl model = (CSSNodeImpl) this.getModel();
+            if (model.getElement() instanceof FilterMediatorImpl) {
+                FilterMediatorImpl filterMediatorDataModel = (FilterMediatorImpl) model.getElement();
+                org.apache.synapse.mediators.filters.FilterMediator filterMediator = null;
+                try {
+                    filterMediator = FilterMediatorTransformer
+                            .createFilterMediator((FilterMediator) filterMediatorDataModel);
+
+                    FilterMediatorSerializer filterMediatorSerializer = new FilterMediatorSerializer();
+                    OMElement omElement = filterMediatorSerializer.serializeSpecificMediator(filterMediator);
+
+                    if (StringUtils
+                            .isEmpty(MediatorValidationUtil.validateMediatorsFromOEMElement(omElement, "filter"))) {
+                        GraphicalValidatorUtil.removeValidationMark(this);
+                    } else {
+                        GraphicalValidatorUtil.addValidationMark(this);
+                    }
+                } catch (TransformerException e) {
+                    e.printStackTrace();
+                }
+            }
+        }
+        super.notifyChanged(notification);
     }
 
     /**

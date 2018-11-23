@@ -21,7 +21,12 @@ import static org.wso2.developerstudio.eclipse.gmf.esb.diagram.edit.parts.EditPa
 
 import java.util.Iterator;
 
+import javax.xml.stream.XMLStreamException;
+
+import org.apache.axiom.om.OMElement;
 import org.apache.commons.lang.StringUtils;
+import org.apache.synapse.config.xml.PropertyMediatorSerializer;
+import org.apache.synapse.config.xml.SendMediatorSerializer;
 import org.eclipse.draw2d.GridData;
 import org.eclipse.draw2d.IFigure;
 import org.eclipse.draw2d.PositionConstants;
@@ -54,8 +59,11 @@ import org.eclipse.gmf.runtime.emf.type.core.requests.SetRequest;
 import org.eclipse.gmf.runtime.gef.ui.figures.DefaultSizeNodeFigure;
 import org.eclipse.gmf.runtime.gef.ui.figures.NodeFigure;
 import org.eclipse.gmf.runtime.notation.View;
+import org.eclipse.papyrus.infra.gmfdiag.css.CSSNodeImpl;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.graphics.Color;
+import org.jaxen.JaxenException;
+import org.wso2.developerstudio.eclipse.gmf.esb.EsbNode;
 import org.wso2.developerstudio.eclipse.gmf.esb.EsbPackage;
 import org.wso2.developerstudio.eclipse.gmf.esb.diagram.custom.AbstractEndpoint;
 import org.wso2.developerstudio.eclipse.gmf.esb.diagram.custom.EsbGroupingShape;
@@ -67,6 +75,13 @@ import org.wso2.developerstudio.eclipse.gmf.esb.diagram.custom.utils.CustomToolT
 import org.wso2.developerstudio.eclipse.gmf.esb.diagram.edit.policies.SendMediatorCanonicalEditPolicy;
 import org.wso2.developerstudio.eclipse.gmf.esb.diagram.edit.policies.SendMediatorItemSemanticEditPolicy;
 import org.wso2.developerstudio.eclipse.gmf.esb.diagram.part.EsbVisualIDRegistry;
+import org.wso2.developerstudio.eclipse.gmf.esb.diagram.validator.GraphicalValidatorUtil;
+import org.wso2.developerstudio.eclipse.gmf.esb.diagram.validator.MediatorValidationUtil;
+import org.wso2.developerstudio.eclipse.gmf.esb.impl.PropertyMediatorImpl;
+import org.wso2.developerstudio.eclipse.gmf.esb.impl.SendMediatorImpl;
+import org.wso2.developerstudio.eclipse.gmf.esb.internal.persistence.PropertyMediatorTransformer;
+import org.wso2.developerstudio.eclipse.gmf.esb.internal.persistence.SendMediatorTransformer;
+import org.wso2.developerstudio.eclipse.gmf.esb.persistence.TransformerException;
 
 /**
  * @generated NOT
@@ -167,6 +182,30 @@ public class SendMediatorEditPart extends SingleCompartmentComplexFiguredAbstrac
                 updateEndpointInlineProperty(notification);
             }
         }
+        
+        if (this.getModel() instanceof CSSNodeImpl) {
+            CSSNodeImpl model = (CSSNodeImpl) this.getModel();
+            if (model.getElement() instanceof SendMediatorImpl) {
+                SendMediatorImpl sendMediatorDataModel = (SendMediatorImpl) model.getElement();
+                try {
+                    org.apache.synapse.mediators.builtin.SendMediator sendMediator = SendMediatorTransformer
+                            .createSendMediator(sendMediatorDataModel);
+
+                    SendMediatorSerializer sendMediatorSerializer = new SendMediatorSerializer();
+                    OMElement omElement = sendMediatorSerializer.serializeSpecificMediator(sendMediator);
+
+                    if (StringUtils
+                            .isEmpty(MediatorValidationUtil.validateMediatorsFromOEMElement(omElement, "send"))) {
+                        GraphicalValidatorUtil.removeValidationMark(this);
+                    } else {
+                        GraphicalValidatorUtil.addValidationMark(this);
+                    }
+                } catch (JaxenException e) {
+                    // ignore
+                }
+            }
+        }
+
 
     }
 

@@ -1,5 +1,10 @@
 package org.wso2.developerstudio.eclipse.gmf.esb.diagram.edit.parts;
 
+import javax.xml.stream.XMLStreamException;
+
+import org.apache.axiom.om.OMElement;
+import org.apache.commons.lang.StringUtils;
+import org.apache.synapse.config.xml.PropertyMediatorSerializer;
 import org.eclipse.draw2d.FigureCanvas;
 import org.eclipse.draw2d.Graphics;
 import org.eclipse.draw2d.GridLayout;
@@ -36,14 +41,22 @@ import org.eclipse.gmf.runtime.gef.ui.figures.DefaultSizeNodeFigure;
 import org.eclipse.gmf.runtime.gef.ui.figures.NodeFigure;
 import org.eclipse.gmf.runtime.notation.View;
 import org.eclipse.gmf.runtime.notation.impl.BoundsImpl;
+import org.eclipse.papyrus.infra.gmfdiag.css.CSSNodeImpl;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.graphics.Color;
+import org.jaxen.JaxenException;
+import org.wso2.developerstudio.eclipse.gmf.esb.EsbNode;
 import org.wso2.developerstudio.eclipse.gmf.esb.diagram.custom.AbstractSequencesEditPart;
 import org.wso2.developerstudio.eclipse.gmf.esb.diagram.custom.CustomNonResizableEditPolicyEx;
 import org.wso2.developerstudio.eclipse.gmf.esb.diagram.custom.FixedBorderItemLocator;
 import org.wso2.developerstudio.eclipse.gmf.esb.diagram.edit.policies.SequencesCanonicalEditPolicy;
 import org.wso2.developerstudio.eclipse.gmf.esb.diagram.edit.policies.SequencesItemSemanticEditPolicy;
 import org.wso2.developerstudio.eclipse.gmf.esb.diagram.part.EsbVisualIDRegistry;
+import org.wso2.developerstudio.eclipse.gmf.esb.diagram.validator.GraphicalValidatorUtil;
+import org.wso2.developerstudio.eclipse.gmf.esb.diagram.validator.MediatorValidationUtil;
+import org.wso2.developerstudio.eclipse.gmf.esb.impl.PropertyMediatorImpl;
+import org.wso2.developerstudio.eclipse.gmf.esb.internal.persistence.PropertyMediatorTransformer;
+import org.wso2.developerstudio.eclipse.gmf.esb.persistence.TransformerException;
 
 /**
  * @generated NOT
@@ -135,6 +148,30 @@ public class SequencesEditPart extends AbstractSequencesEditPart {
                 canvas.getViewport().repaint();
             }
         }
+
+        if (this.getModel() instanceof CSSNodeImpl) {
+            CSSNodeImpl model = (CSSNodeImpl) this.getModel();
+            if (model.getElement() instanceof PropertyMediatorImpl) {
+//                PropertyMediatorImpl propertyMediatorDataModel = (PropertyMediatorImpl) model.getElement();
+//                try {
+//                    org.apache.synapse.mediators.builtin.PropertyMediator propertyMediator = PropertyMediatorTransformer
+//                            .createPropertyMediator((EsbNode) propertyMediatorDataModel);
+//
+//                    PropertyMediatorSerializer propertyMediatorSerializer = new PropertyMediatorSerializer();
+//                    OMElement omElement = propertyMediatorSerializer.serializeSpecificMediator(propertyMediator);
+//
+//                    if (StringUtils
+//                            .isEmpty(MediatorValidationUtil.validateMediatorsFromOEMElement(omElement, "property"))) {
+//                        GraphicalValidatorUtil.removeValidationMark(this);
+//                    } else {
+//                        GraphicalValidatorUtil.addValidationMark(this);
+//                    }
+//                } catch (JaxenException | TransformerException | XMLStreamException e) {
+//                    // ignore
+//                }
+            }
+        }
+
     }
 
     private void alignLeft(int y, int width, int height) {
@@ -316,7 +353,7 @@ public class SequencesEditPart extends AbstractSequencesEditPart {
         }
 
     }
-
+    
     /**
      * @generated
      */

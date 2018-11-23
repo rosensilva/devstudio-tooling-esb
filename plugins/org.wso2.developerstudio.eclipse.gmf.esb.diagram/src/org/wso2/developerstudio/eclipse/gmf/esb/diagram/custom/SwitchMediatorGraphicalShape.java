@@ -34,6 +34,8 @@ import org.eclipse.swt.graphics.Image;
 import org.eclipse.swt.widgets.Display;
 import org.wso2.developerstudio.eclipse.gmf.esb.diagram.custom.utils.DiagramCustomConstants;
 import org.wso2.developerstudio.eclipse.gmf.esb.diagram.custom.utils.ImageHolder;
+
+import static org.wso2.developerstudio.eclipse.gmf.esb.diagram.custom.utils.DiagramCustomConstants.VALIDATION_POINT_IMAGE_LOCATION;
 import static org.wso2.developerstudio.eclipse.gmf.esb.diagram.edit.parts.EditPartConstants.SWITCH_MEDIATOR_ICON_PATH;
 
 /**
@@ -48,6 +50,7 @@ public class SwitchMediatorGraphicalShape extends RoundedRectangle {
     private Layer figureLayer;
     private Layer breakpointLayer;
     private Layer skipPointLayer;
+    private Layer validationPointLayer;
     protected String toolTipMessage;
 
     public SwitchMediatorGraphicalShape() {
@@ -90,6 +93,33 @@ public class SwitchMediatorGraphicalShape extends RoundedRectangle {
             containerInsideLeftRectangle.add(pane);
         }
     }
+    
+    /**
+     * This method adds layer with validation mark to the figure pane to show
+     * the incomplete mutator configuration
+     */
+    public void addValidationMark() {
+        if (validationPointLayer == null) {
+            validationPointLayer = new Layer();
+            validationPointLayer.setLayoutManager(new StackLayout());
+            GridData constraintBreakpointImageRectangle = new GridData();
+            constraintBreakpointImageRectangle.verticalAlignment = GridData.BEGINNING;
+            constraintBreakpointImageRectangle.horizontalAlignment = GridData.BEGINNING;
+            constraintBreakpointImageRectangle.verticalSpan = 1;
+            ImageFigure iconImageFigure = EditPartDrawingHelper.getIconImageFigure(VALIDATION_POINT_IMAGE_LOCATION, 16,
+                    16);
+            RoundedRectangle breakpointImageRectangle = new RoundedRectangle();
+            breakpointImageRectangle.setCornerDimensions(new Dimension(2, 2));
+            breakpointImageRectangle.setOutline(false);
+            breakpointImageRectangle.setPreferredSize(new Dimension(10, containerInsideLeftRectangle.getSize().height));
+            breakpointImageRectangle.setAlpha(0);
+            breakpointImageRectangle.add(iconImageFigure);
+            iconImageFigure.translate(containerInsideLeftRectangle.getSize().width - 30, containerInsideLeftRectangle.getSize().height / 2
+                    - DiagramCustomConstants.DEBUGPOINT_IMAGE_OFFSET_VALUE);
+            validationPointLayer.add(breakpointImageRectangle, constraintBreakpointImageRectangle);
+            pane.add(validationPointLayer);
+        }
+    }
 
     public void addSkipPointMark() {
         if (skipPointLayer == null) {
@@ -119,6 +149,16 @@ public class SwitchMediatorGraphicalShape extends RoundedRectangle {
             containerInsideLeftRectangle.remove(pane);
             pane.add(skipPointLayer);
             containerInsideLeftRectangle.add(pane);
+        }
+    }
+    
+    /**
+     * This method remove validation point layer
+     */
+    public void removeValidationPointMark() {
+        if (validationPointLayer != null) {
+            pane.remove(validationPointLayer);
+            validationPointLayer = null;
         }
     }
 

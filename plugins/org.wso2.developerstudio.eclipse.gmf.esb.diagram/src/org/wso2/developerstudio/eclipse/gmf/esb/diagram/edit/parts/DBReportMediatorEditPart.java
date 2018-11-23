@@ -18,11 +18,15 @@ package org.wso2.developerstudio.eclipse.gmf.esb.diagram.edit.parts;
 import static org.wso2.developerstudio.eclipse.gmf.esb.diagram.edit.parts.EditPartConstants.DBREPORT_MEDIATOR_ICON_PATH;
 import static org.wso2.developerstudio.eclipse.gmf.esb.diagram.edit.parts.EditPartConstants.DEFAULT_PROPERTY_VALUE_TEXT;
 
+import org.apache.axiom.om.OMElement;
 import org.apache.commons.lang.StringUtils;
+import org.apache.synapse.config.xml.DBLookupMediatorSerializer;
+import org.apache.synapse.config.xml.DBReportMediatorSerializer;
 import org.eclipse.draw2d.IFigure;
 import org.eclipse.draw2d.PositionConstants;
 import org.eclipse.draw2d.Shape;
 import org.eclipse.draw2d.ToolbarLayout;
+import org.eclipse.emf.common.notify.Notification;
 import org.eclipse.gef.EditPart;
 import org.eclipse.gef.EditPolicy;
 import org.eclipse.gef.Request;
@@ -41,8 +45,10 @@ import org.eclipse.gmf.runtime.draw2d.ui.figures.ConstrainedToolbarLayout;
 import org.eclipse.gmf.runtime.draw2d.ui.figures.WrappingLabel;
 import org.eclipse.gmf.runtime.gef.ui.figures.NodeFigure;
 import org.eclipse.gmf.runtime.notation.View;
+import org.eclipse.papyrus.infra.gmfdiag.css.CSSNodeImpl;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.graphics.Color;
+import org.wso2.developerstudio.eclipse.gmf.esb.EsbNode;
 import org.wso2.developerstudio.eclipse.gmf.esb.diagram.custom.EsbGraphicalShapeWithLabel;
 import org.wso2.developerstudio.eclipse.gmf.esb.diagram.custom.FixedBorderItemLocator;
 import org.wso2.developerstudio.eclipse.gmf.esb.diagram.custom.FixedSizedAbstractMediator;
@@ -52,6 +58,13 @@ import org.wso2.developerstudio.eclipse.gmf.esb.diagram.custom.utils.CustomToolT
 import org.wso2.developerstudio.eclipse.gmf.esb.diagram.edit.policies.DBReportMediatorCanonicalEditPolicy;
 import org.wso2.developerstudio.eclipse.gmf.esb.diagram.edit.policies.DBReportMediatorItemSemanticEditPolicy;
 import org.wso2.developerstudio.eclipse.gmf.esb.diagram.part.EsbVisualIDRegistry;
+import org.wso2.developerstudio.eclipse.gmf.esb.diagram.validator.GraphicalValidatorUtil;
+import org.wso2.developerstudio.eclipse.gmf.esb.diagram.validator.MediatorValidationUtil;
+import org.wso2.developerstudio.eclipse.gmf.esb.impl.DBLookupMediatorImpl;
+import org.wso2.developerstudio.eclipse.gmf.esb.impl.DBReportMediatorImpl;
+import org.wso2.developerstudio.eclipse.gmf.esb.internal.persistence.DBLookupMediatorTransformer;
+import org.wso2.developerstudio.eclipse.gmf.esb.internal.persistence.DBReportMediatorTransformer;
+import org.wso2.developerstudio.eclipse.gmf.esb.persistence.TransformationInfo;
 
 /**
  * @generated NOT
@@ -379,6 +392,30 @@ public class DBReportMediatorEditPart extends FixedSizedAbstractMediator {
 
     }
 
+    @Override
+    public void notifyChanged(Notification notification) {
+        if (this.getModel() instanceof CSSNodeImpl) {
+            CSSNodeImpl model = (CSSNodeImpl) this.getModel();
+            if (model.getElement() instanceof DBReportMediatorImpl) {
+                DBReportMediatorImpl DBLookupMediatorDataModel = (DBReportMediatorImpl) model.getElement();
+                org.apache.synapse.mediators.db.DBReportMediator dbReportMediator = null;
+                dbReportMediator = DBReportMediatorTransformer
+                        .createDBReportMediator((EsbNode) DBLookupMediatorDataModel);
+
+                DBReportMediatorSerializer dbReportMediatorSerializer = new DBReportMediatorSerializer();
+                OMElement omElement = dbReportMediatorSerializer.serializeSpecificMediator(dbReportMediator);
+
+                if (StringUtils
+                        .isEmpty(MediatorValidationUtil.validateMediatorsFromOEMElement(omElement, "dbreport"))) {
+                    GraphicalValidatorUtil.removeValidationMark(this);
+                } else {
+                    GraphicalValidatorUtil.addValidationMark(this);
+                }
+            }
+        }
+        super.notifyChanged(notification);
+    }
+    
     /**
      * @generated
      */

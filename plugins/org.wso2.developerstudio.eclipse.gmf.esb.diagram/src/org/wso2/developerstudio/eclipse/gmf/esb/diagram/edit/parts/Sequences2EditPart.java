@@ -1,5 +1,8 @@
 package org.wso2.developerstudio.eclipse.gmf.esb.diagram.edit.parts;
 
+import org.apache.axiom.om.OMElement;
+import org.apache.commons.lang.StringUtils;
+import org.apache.synapse.config.xml.LogMediatorSerializer;
 import org.eclipse.draw2d.FigureCanvas;
 import org.eclipse.draw2d.Graphics;
 import org.eclipse.draw2d.GridLayout;
@@ -35,14 +38,21 @@ import org.eclipse.gmf.runtime.gef.ui.figures.DefaultSizeNodeFigure;
 import org.eclipse.gmf.runtime.gef.ui.figures.NodeFigure;
 import org.eclipse.gmf.runtime.notation.View;
 import org.eclipse.gmf.runtime.notation.impl.BoundsImpl;
+import org.eclipse.papyrus.infra.gmfdiag.css.CSSNodeImpl;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.graphics.Color;
+import org.jaxen.JaxenException;
+import org.wso2.developerstudio.eclipse.gmf.esb.LogMediator;
 import org.wso2.developerstudio.eclipse.gmf.esb.diagram.custom.AbstractSequencesEditPart;
 import org.wso2.developerstudio.eclipse.gmf.esb.diagram.custom.CustomNonResizableEditPolicyEx;
 import org.wso2.developerstudio.eclipse.gmf.esb.diagram.custom.FixedBorderItemLocator;
 import org.wso2.developerstudio.eclipse.gmf.esb.diagram.edit.policies.Sequences2CanonicalEditPolicy;
 import org.wso2.developerstudio.eclipse.gmf.esb.diagram.edit.policies.Sequences2ItemSemanticEditPolicy;
 import org.wso2.developerstudio.eclipse.gmf.esb.diagram.part.EsbVisualIDRegistry;
+import org.wso2.developerstudio.eclipse.gmf.esb.diagram.validator.GraphicalValidatorUtil;
+import org.wso2.developerstudio.eclipse.gmf.esb.diagram.validator.MediatorValidationUtil;
+import org.wso2.developerstudio.eclipse.gmf.esb.impl.LogMediatorImpl;
+import org.wso2.developerstudio.eclipse.gmf.esb.internal.persistence.LogMediatorTransformer;
 
 /**
  * @generated NOT
@@ -311,7 +321,7 @@ public class Sequences2EditPart extends AbstractSequencesEditPart {
         }
 
     }
-
+    
     /**
      * @generated
      */

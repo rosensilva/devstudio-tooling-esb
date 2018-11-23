@@ -62,7 +62,7 @@ public class IterateMediatorTransformer extends AbstractEsbNodeTransformer {
         }
     }
 
-    private org.apache.synapse.mediators.eip.splitter.IterateMediator createIterateMediator(
+    public static org.apache.synapse.mediators.eip.splitter.IterateMediator createIterateMediator(
             TransformationInfo information, EsbNode subject) throws JaxenException, TransformerException {
         /*
          * Check subject.

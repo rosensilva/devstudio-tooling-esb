@@ -21,7 +21,10 @@ import static org.wso2.developerstudio.eclipse.gmf.esb.diagram.edit.parts.EditPa
 import java.util.ArrayList;
 import java.util.List;
 
+import org.apache.axiom.om.OMElement;
 import org.apache.commons.lang.StringUtils;
+import org.apache.synapse.config.xml.AggregateMediatorSerializer;
+import org.apache.synapse.config.xml.CloneMediatorSerializer;
 import org.eclipse.draw2d.GridData;
 import org.eclipse.draw2d.IFigure;
 import org.eclipse.draw2d.PositionConstants;
@@ -51,18 +54,37 @@ import org.eclipse.gmf.runtime.draw2d.ui.figures.WrappingLabel;
 import org.eclipse.gmf.runtime.gef.ui.figures.DefaultSizeNodeFigure;
 import org.eclipse.gmf.runtime.gef.ui.figures.NodeFigure;
 import org.eclipse.gmf.runtime.notation.View;
+import org.eclipse.papyrus.infra.gmfdiag.css.CSSNodeImpl;
 import org.eclipse.swt.graphics.Color;
+import org.jaxen.JaxenException;
 import org.wso2.developerstudio.eclipse.gmf.esb.CloneMediator;
+import org.wso2.developerstudio.eclipse.gmf.esb.EsbNode;
+import org.wso2.developerstudio.eclipse.gmf.esb.diagram.custom.AbstractMediator;
 import org.wso2.developerstudio.eclipse.gmf.esb.diagram.custom.CloneMediatorGraphicalShape;
+import org.wso2.developerstudio.eclipse.gmf.esb.diagram.custom.EntitlementMediatorGraphicalShape;
+import org.wso2.developerstudio.eclipse.gmf.esb.diagram.custom.EsbGroupingShape;
+import org.wso2.developerstudio.eclipse.gmf.esb.diagram.custom.FilterMediatorGraphicalShape;
 import org.wso2.developerstudio.eclipse.gmf.esb.diagram.custom.FixedBorderItemLocator;
+import org.wso2.developerstudio.eclipse.gmf.esb.diagram.custom.FixedSizedAbstractMediator;
 import org.wso2.developerstudio.eclipse.gmf.esb.diagram.custom.MultipleCompartmentComplexFiguredAbstractMediator;
 import org.wso2.developerstudio.eclipse.gmf.esb.diagram.custom.ShowPropertyViewEditPolicy;
+import org.wso2.developerstudio.eclipse.gmf.esb.diagram.custom.SwitchMediatorGraphicalShape;
+import org.wso2.developerstudio.eclipse.gmf.esb.diagram.custom.complexFiguredAbstractMediator;
 import org.wso2.developerstudio.eclipse.gmf.esb.diagram.custom.editpolicy.FeedbackIndicateDragDropEditPolicy;
 import org.wso2.developerstudio.eclipse.gmf.esb.diagram.custom.utils.CloneMediatorUtils;
 import org.wso2.developerstudio.eclipse.gmf.esb.diagram.custom.utils.CustomToolTip;
 import org.wso2.developerstudio.eclipse.gmf.esb.diagram.edit.policies.CloneMediatorCanonicalEditPolicy;
 import org.wso2.developerstudio.eclipse.gmf.esb.diagram.edit.policies.CloneMediatorItemSemanticEditPolicy;
 import org.wso2.developerstudio.eclipse.gmf.esb.diagram.part.EsbVisualIDRegistry;
+import org.wso2.developerstudio.eclipse.gmf.esb.diagram.validator.GraphicalValidatorUtil;
+import org.wso2.developerstudio.eclipse.gmf.esb.diagram.validator.MediatorValidationUtil;
+import org.wso2.developerstudio.eclipse.gmf.esb.impl.AggregateMediatorImpl;
+import org.wso2.developerstudio.eclipse.gmf.esb.impl.CallMediatorImpl;
+import org.wso2.developerstudio.eclipse.gmf.esb.impl.CloneMediatorImpl;
+import org.wso2.developerstudio.eclipse.gmf.esb.internal.persistence.AggregateMediatorTransformer;
+import org.wso2.developerstudio.eclipse.gmf.esb.internal.persistence.CloneMediatorTransformer;
+import org.wso2.developerstudio.eclipse.gmf.esb.persistence.TransformationInfo;
+import org.wso2.developerstudio.eclipse.gmf.esb.persistence.TransformerException;
 
 /**
  * @generated NOT
@@ -115,6 +137,31 @@ public class CloneMediatorEditPart extends MultipleCompartmentComplexFiguredAbst
                 reorderdOnUndo = true;
             }
         }
+        
+        if (this.getModel() instanceof CSSNodeImpl) {
+            CSSNodeImpl model = (CSSNodeImpl) this.getModel();
+            if (model.getElement() instanceof CloneMediatorImpl) {
+                CloneMediatorImpl cloneMediatorDataModel = (CloneMediatorImpl) model.getElement();
+                org.apache.synapse.mediators.eip.splitter.CloneMediator cloneMediator = null;
+                try {
+                    cloneMediator = CloneMediatorTransformer.createCloneMediator(new TransformationInfo(),
+                            (EsbNode) cloneMediatorDataModel);
+
+                    CloneMediatorSerializer cloneMediatorSerializer = new CloneMediatorSerializer();
+                    OMElement omElement = cloneMediatorSerializer.serializeSpecificMediator(cloneMediator);
+
+                    if (StringUtils
+                            .isEmpty(MediatorValidationUtil.validateMediatorsFromOEMElement(omElement, "clone"))) {
+                        GraphicalValidatorUtil.removeValidationMark(this);
+                    } else {
+                        GraphicalValidatorUtil.addValidationMark(this);
+                    }
+                } catch (TransformerException | JaxenException e) {
+                    // ignore
+                }
+            }
+        }
+        super.notifyChanged(notification);
     }
 
     /**
@@ -518,7 +565,52 @@ public class CloneMediatorEditPart extends MultipleCompartmentComplexFiguredAbst
             return new CustomToolTip().getCustomToolTipShape(toolTipMessage);
         }
     }
-
+    
+    /**
+     * This method add breakpoint mark to the selected edit part
+     */
+    public static void addBreakpointMark(AbstractMediator part) {
+        if (part instanceof FixedSizedAbstractMediator && !(part instanceof CloudConnectorOperationEditPart)) {
+            ((FixedSizedAbstractMediator) part).getPrimaryShape().addValidationPointMark();           
+        } else if (part instanceof complexFiguredAbstractMediator) {
+            RoundedRectangle shape = ((complexFiguredAbstractMediator) part).getPrimaryShape();
+            if (shape instanceof EsbGroupingShape) {
+                ((EsbGroupingShape) shape).addValidationMark();
+            } else if (shape instanceof SwitchMediatorGraphicalShape) {
+                ((SwitchMediatorGraphicalShape) shape).addValidationMark();
+            } else if (shape instanceof FilterMediatorGraphicalShape) {
+                ((FilterMediatorGraphicalShape) shape).addValidationMark();
+            } else if (shape instanceof CloneMediatorGraphicalShape) {
+                ((CloneMediatorGraphicalShape) shape).addValidationMark();
+            } else if (shape instanceof EntitlementMediatorGraphicalShape) {
+                ((EntitlementMediatorGraphicalShape) shape).addValidationMark();
+            }
+        }
+    }
+    
+    /**
+     * This method remove breakpoint mark from the selected edit part
+     */
+    public static void removeBreakpointMark(AbstractMediator part) {
+        if (part instanceof FixedSizedAbstractMediator) {
+            ((FixedSizedAbstractMediator) part).getPrimaryShape().removeValidationPointMark();
+        } else if (part instanceof complexFiguredAbstractMediator) {
+            RoundedRectangle shape = ((complexFiguredAbstractMediator) part).getPrimaryShape();
+            if (shape instanceof EsbGroupingShape) {
+                ((EsbGroupingShape) shape).removeBreakpointMark();
+            } else if (shape instanceof SwitchMediatorGraphicalShape) {
+                ((SwitchMediatorGraphicalShape) shape).removeValidationPointMark();
+            } else if (shape instanceof FilterMediatorGraphicalShape) {
+                ((FilterMediatorGraphicalShape) shape).removeValidationPointMark();
+            } else if (shape instanceof CloneMediatorGraphicalShape) {
+                ((CloneMediatorGraphicalShape) shape).removeValidationPointMark();
+            } else if (shape instanceof EntitlementMediatorGraphicalShape) {
+                ((EntitlementMediatorGraphicalShape) shape).removeValidationPointMark();
+            }
+        }
+        part.setBreakpointStatus(false);
+    }
+     
     /**
      * @generated NOT
      */

@@ -54,7 +54,7 @@ public class ForEachMediatorTransformer extends AbstractEsbNodeTransformer {
         }
     }
 
-    private org.apache.synapse.mediators.builtin.ForEachMediator createForEachMediator(TransformationInfo information,
+    public static org.apache.synapse.mediators.builtin.ForEachMediator createForEachMediator(TransformationInfo information,
             EsbNode subject) throws JaxenException, TransformerException {
         // Check subject.
         Assert.isTrue(subject instanceof ForEachMediator, "Invalid subject.");

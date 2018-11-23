@@ -63,7 +63,7 @@ public class SmooksMediatorTransformer extends AbstractEsbNodeTransformer {
         }
     }
 
-    private org.wso2.carbon.mediator.transform.SmooksMediator createSmooksMediator(TransformationInfo information,
+    public static org.wso2.carbon.mediator.transform.SmooksMediator createSmooksMediator(TransformationInfo information,
             EsbNode subject) throws JaxenException {
         // Check subject.
         Assert.isTrue(subject instanceof SmooksMediator, "Invalid subject.");

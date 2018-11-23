@@ -433,7 +433,10 @@ public class DefaultEsbModelExporter implements EsbModelTransformer {
                 break;
             case PROXY:
                 if (child instanceof ProxyService) {
-                    configOM = ProxyServiceSerializer.serializeProxy(null, transformProxyService((ProxyService) child));
+                    
+                    org.apache.synapse.core.axis2.ProxyService p1 = transformProxyService((ProxyService) child);
+                    System.out.println("DDDDDD");
+                    configOM = ProxyServiceSerializer.serializeProxy(null, p1);
                 }
                 break;
             case ENDPOINT:
@@ -539,6 +542,7 @@ public class DefaultEsbModelExporter implements EsbModelTransformer {
 
         // sourceXML = baos.toString("UTF-8");
         sourceXML = sourceXML.replaceAll("\\?><", "?>\n<");
+        sourceXML = sourceXML.replaceAll("FACTORY/DEFAULT/VALUE", "");
         return sourceXML;
     }
 

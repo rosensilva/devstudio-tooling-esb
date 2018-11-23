@@ -71,7 +71,7 @@ public class AggregateMediatorTransformer extends AbstractEsbNodeTransformer {
         }
     }
 
-    private org.apache.synapse.mediators.eip.aggregator.AggregateMediator createAggregateMediator(
+    public static org.apache.synapse.mediators.eip.aggregator.AggregateMediator createAggregateMediator(
             TransformationInfo information, EsbNode subject) throws TransformerException, JaxenException {
         /*
          * Check subject.

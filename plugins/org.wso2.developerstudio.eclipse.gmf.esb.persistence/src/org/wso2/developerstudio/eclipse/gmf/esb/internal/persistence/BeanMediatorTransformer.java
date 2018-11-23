@@ -61,7 +61,7 @@ public class BeanMediatorTransformer extends AbstractEsbNodeTransformer {
         }
     }
 
-    private BeanMediatorExt createBeanMediator(EsbNode subject, TransformationInfo information)
+    public static BeanMediatorExt createBeanMediator(EsbNode subject, TransformationInfo information)
             throws TransformerException, JaxenException {
 
         /*
